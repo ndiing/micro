@@ -24,9 +24,7 @@ function encode(payload, secret = "", header) {
     payload = Buffer.from(JSON.stringify(payload)).toString("base64url");
 
     const data = [header, payload].join(".");
-
     const signature = crypto.createHmac("sha256", secret).update(data).digest("base64url");
-
     const token = [data, signature].join(".");
 
     return token;
@@ -36,6 +34,7 @@ function decode(token = "", secret = "") {
     if (!token) {
         throw new Error("required token");
     }
+
     if (!secret) {
         throw new Error("required secret");
     }
@@ -47,9 +46,7 @@ function decode(token = "", secret = "") {
     }
 
     const data = [header, payload].join(".");
-
     signature = Buffer.from(signature, "base64url");
-
     const expected = crypto.createHmac("sha256", secret).update(data).digest();
 
     if (!crypto.timingSafeEqual(signature, expected)) {
@@ -65,7 +62,6 @@ function decode(token = "", secret = "") {
 
     return payload;
 }
-
 // // usage
 // let header = {
 //     alg: "HS256",
@@ -75,7 +71,6 @@ function decode(token = "", secret = "") {
 //     exp: 300,
 // };
 // let secret = "your-256-bit-secret";
-
 // const token = encode(payload, secret, header);
 // console.log(decode(token, secret));
 

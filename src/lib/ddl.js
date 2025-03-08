@@ -15,7 +15,6 @@ class DDL {
 
         for (const columnName in columns) {
             const column = columns[columnName];
-
             newColumns[columnName] = {
                 type: column.type,
                 notNull: column.notNull,
@@ -25,15 +24,19 @@ class DDL {
             if (column.unique !== undefined) {
                 newConstraints[`uq_${tableName}_${columnName}`] = { unique: column.unique, columns: [columnName] };
             }
+
             if (column.pk !== undefined) {
                 newConstraints[`pk_${tableName}_${columnName}`] = { pk: column.pk, columns: [columnName] };
             }
+
             if (column.fk !== undefined) {
                 newConstraints[`fk_${tableName}_${columnName}`] = { fk: column.fk, columns: [columnName] };
             }
+
             if (column.check !== undefined) {
                 newConstraints[`ck_${tableName}_${columnName}`] = { check: column.check, columns: [columnName] };
             }
+
             if (column.def !== undefined) {
                 newConstraints[`df_${tableName}_${columnName}`] = { def: column.def, columns: [columnName] };
             }
@@ -47,15 +50,19 @@ class DDL {
             if (constraint.unique !== undefined) {
                 newConstraints[`uq_${tableName}_${constraint.columns.join("_")}`] = { unique: constraint.unique, columns: constraint.columns };
             }
+
             if (constraint.pk !== undefined) {
                 newConstraints[`pk_${tableName}_${constraint.columns.join("_")}`] = { pk: constraint.pk, columns: constraint.columns };
             }
+
             if (constraint.fk !== undefined) {
                 newConstraints[`fk_${tableName}_${constraint.columns.join("_")}`] = { fk: constraint.fk, columns: constraint.columns };
             }
+
             if (constraint.check !== undefined) {
                 newConstraints[`ck_${tableName}_${constraint.columns.join("_")}`] = { check: constraint.check, columns: constraint.columns };
             }
+
             if (constraint.def !== undefined) {
                 newConstraints[`df_${tableName}_${constraint.columns.join("_")}`] = { def: constraint.def, columns: constraint.columns };
             }
@@ -64,7 +71,6 @@ class DDL {
                 newConstraints[`ix_${tableName}_${constraint.columns.join("_")}`] = { index: constraint.index, columns: constraint.columns };
             }
         }
-
         this.tables[tableName] = {
             columns: newColumns,
             constraints: newConstraints,
@@ -79,11 +85,13 @@ class DDL {
             });
             data = JSON.parse(data);
         } catch (error) {}
+
         return data;
     }
 
     write(filename, data = {}) {
         const dirname = path.dirname(filename);
+
         try {
             fs.readdirSync(dirname);
         } catch (error) {
@@ -91,6 +99,7 @@ class DDL {
                 recursive: true,
             });
         }
+
         data = JSON.stringify(data);
         fs.writeFileSync(filename, data);
     }
@@ -111,7 +120,6 @@ class DDL {
         for (const tableName in newDb.tables) {
             const oldTable = oldDb?.tables?.[tableName];
             const table = newDb.tables[tableName];
-
             const columnsQuery = [];
             const columnsChangedQuery = [];
             const constraintsQuery = [];
@@ -120,19 +128,21 @@ class DDL {
             for (const columnName in table.columns) {
                 const oldColumn = oldTable?.columns?.[columnName];
                 const column = table.columns[columnName];
-
                 const columnQuery = [];
                 const columnChanged = oldColumn?.type !== column.type || oldColumn?.notNull !== column.notNull;
 
                 if (columnChanged) {
                     columnQuery.push(columnName);
                     columnQuery.push(column.type);
+
                     if (column.notNull !== undefined) {
                         columnQuery.push(column.notNull ? "NOT NULL" : "NULL");
                     }
+
                     if (column.ai !== undefined) {
                         columnQuery.push("IDENTITY(1,1)");
                     }
+
                     if (oldColumn === undefined) {
                         columnsQuery.push(columnQuery.join(" "));
                     } else {
@@ -151,12 +161,14 @@ class DDL {
                     }
                     constraintsQuery.push([`ALTER TABLE ${tableName}`, `ADD CONSTRAINT ${constraintName} UNIQUE (${constraint.columns});\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.pk !== constraint.pk && constraint.pk !== undefined) {
                     if (oldConstraint !== undefined) {
                         constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
                     }
                     constraintsQuery.push([`ALTER TABLE ${tableName}`, `ADD CONSTRAINT ${constraintName} PRIMARY KEY (${constraint.columns});\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.fk !== constraint.fk && constraint.fk !== undefined) {
                     if (oldConstraint !== undefined) {
                         constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
@@ -164,18 +176,21 @@ class DDL {
                     const ref = constraint.fk.split(".");
                     constraintsQuery.push([`ALTER TABLE ${tableName}`, `ADD CONSTRAINT ${constraintName}`, `FOREIGN KEY (${constraint.columns}) REFERENCES ${ref[0]} (${ref[1]});\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.check !== constraint.check && constraint.check !== undefined) {
                     if (oldConstraint !== undefined) {
                         constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
                     }
                     constraintsQuery.push([`ALTER TABLE ${tableName}`, `ADD CONSTRAINT ${constraintName} CHECK (${constraint.check});\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.def !== constraint.def && constraint.def !== undefined) {
                     if (oldConstraint !== undefined) {
                         constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
                     }
                     constraintsQuery.push([`ALTER TABLE ${tableName}`, `ADD CONSTRAINT ${constraintName}`, `DEFAULT ${constraint.def} FOR ${constraint.columns};\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.index !== constraint.index && constraint.index !== undefined) {
                     if (oldConstraint !== undefined) {
                         constraintsChangedQuery.push([`DROP INDEX ${tableName}.${constraintName};\r\n`].join("\r\n"));
@@ -186,6 +201,7 @@ class DDL {
 
             if (oldTable === undefined) {
                 tablesQuery.push([`USE ${newDb.databaseName};\r\n`, `CREATE TABLE ${tableName} (`, columnsQuery.join(",\r\n").replace(/^/gm, " ".repeat(4)), `);\r\n`].join("\r\n"));
+
                 if (constraintsQuery.length) {
                     tablesQuery.push([`USE ${newDb.databaseName};\r\n`].concat(constraintsQuery).join("\r\n"));
                 }
@@ -211,7 +227,6 @@ class DDL {
         for (const tableName in oldDb.tables) {
             const oldTable = newDb?.tables?.[tableName];
             const table = oldDb.tables[tableName];
-
             const columnsChangedQuery = [];
             const constraintsChangedQuery = [];
 
@@ -230,18 +245,23 @@ class DDL {
                 if (oldConstraint?.unique === undefined && constraint.unique !== undefined) {
                     constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.pk === undefined && constraint.pk !== undefined) {
                     constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.fk === undefined && constraint.fk !== undefined) {
                     constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.check === undefined && constraint.check !== undefined) {
                     constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.def === undefined && constraint.def !== undefined) {
                     constraintsChangedQuery.push([`ALTER TABLE ${tableName}`, `DROP CONSTRAINT ${constraintName};\r\n`].join("\r\n"));
                 }
+
                 if (oldConstraint?.index === undefined && constraint.index !== undefined) {
                     constraintsChangedQuery.push([`DROP INDEX ${tableName}.${constraintName};\r\n`].join("\r\n"));
                 }
@@ -286,7 +306,6 @@ class DDL {
 }
 
 module.exports = DDL;
-
 // const config = {
 //     server: "localhost",
 //     options: {
@@ -294,7 +313,6 @@ module.exports = DDL;
 //         trustServerCertificate: true,
 //     },
 // };
-
 // const ddl = new DDL("my_erp", config);
 // ddl.table("pengguna", {
 //     id: { type: "int", notNull: true, pk: true, ai: true },

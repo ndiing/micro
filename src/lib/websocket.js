@@ -5,11 +5,15 @@ function createWebSocketServer() {
 
     ws.on("connection", (req, client) => {
         client.on("close", console.log);
+
         client.on("error", console.log);
+
         client.on("message", (data) => {
             console.log(data.toString());
         });
+
         client.on("open", console.log);
+
         client.send("from server");
     });
 

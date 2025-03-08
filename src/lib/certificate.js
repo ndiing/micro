@@ -17,6 +17,7 @@ let defaultAttrs = [
 
 function getExtensionSAN(domain = "") {
     const isIpDomain = Util.isIpDomain(domain);
+
     if (isIpDomain) {
         return {
             name: "subjectAltName",
@@ -36,9 +37,9 @@ function getKeysAndCert(serialNumber) {
     cert.publicKey = keys.publicKey;
     cert.serialNumber = serialNumber || Math.floor(Math.random() * 100000) + "";
     var now = Date.now();
-
     cert.validity.notBefore = new Date(now - 24 * 60 * 60 * 1000);
     cert.validity.notAfter = new Date(now + 824 * 24 * 60 * 60 * 1000);
+
     return {
         keys,
         cert,
@@ -49,9 +50,7 @@ function generateRootCA(commonName) {
     const keysAndCert = getKeysAndCert();
     const keys = keysAndCert.keys;
     const cert = keysAndCert.cert;
-
     commonName = commonName || "CertManager";
-
     const attrs = defaultAttrs.concat([
         {
             name: "commonName",
@@ -61,7 +60,6 @@ function generateRootCA(commonName) {
     cert.setSubject(attrs);
     cert.setIssuer(attrs);
     cert.setExtensions([{ name: "basicConstraints", cA: true }]);
-
     cert.sign(keys.privateKey, forge.md.sha256.create());
 
     return {
@@ -74,28 +72,21 @@ function generateRootCA(commonName) {
 function generateCertsForHostname(domain, rootCAConfig) {
     const md = forge.md.md5.create();
     md.update(domain);
-
     const keysAndCert = getKeysAndCert(md.digest().toHex());
     const keys = keysAndCert.keys;
     const cert = keysAndCert.cert;
-
     const caCert = forge.pki.certificateFromPem(rootCAConfig.cert);
     const caKey = forge.pki.privateKeyFromPem(rootCAConfig.key);
-
     cert.setIssuer(caCert.subject.attributes);
-
     const attrs = defaultAttrs.concat([
         {
             name: "commonName",
             value: domain,
         },
     ]);
-
     const extensions = [{ name: "basicConstraints", cA: false }, getExtensionSAN(domain)];
-
     cert.setSubject(attrs);
     cert.setExtensions(extensions);
-
     cert.sign(caKey, forge.md.sha256.create());
 
     return {
@@ -112,7 +103,6 @@ function setDefaultAttrs(attrs) {
 function getCerts() {
     if (!fs.existsSync("./certs/host.key")) {
         const { privateKey, certificate } = generateRootCA();
-
         const hostCert = generateCertsForHostname("localhost", {
             key: privateKey,
             cert: certificate,
@@ -122,6 +112,7 @@ function getCerts() {
         fs.writeFileSync("./certs/host.key", hostCert.privateKey);
         fs.writeFileSync("./certs/host.crt", hostCert.certificate);
     }
+
     return {
         key: fs.readFileSync("./certs/host.key"),
         cert: fs.readFileSync("./certs/host.crt"),
