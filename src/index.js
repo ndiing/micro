@@ -1,25 +1,23 @@
-const crashHandler = require("./lib/crash.js");
-crashHandler();
+require("./lib/crash.js");
+require("./lib/env.js");
+const WebSocket = require("./lib/web-socket.js");
+const Router = require("./lib/router.js");
+const {getCertsForHostname} = require('./lib/certificate.js')
+const http = require('http')
+const https = require('https')
 
-require("dotenv").config();
-const http = require("http");
-const https = require("https");
-const createWebSocketServer = require("./lib/websocket.js");
-const { getCerts } = require("./lib/certificate.js");
-const app = require("./app.js");
+const app = new Router()
 
-const httpServer = http.createServer(app);
-const httpsServer = https.createServer(getCerts(), app);
+app.use('/api',require('./api/index.js'))
 
-const upgrade = createWebSocketServer();
+const httpServer = http.createServer(app.request)
+const httpsServer = https.createServer(getCertsForHostname(),app.request)
 
-httpServer.on("upgrade", upgrade);
-httpsServer.on("upgrade", upgrade);
+const socket=new WebSocket(false)
 
-httpServer.listen(process.env.HTTP_PORT, "0.0.0.0", () => {
-    console.log(httpServer.address());
-});
+httpServer.on('upgrade',socket.upgrade)
+httpsServer.on('upgrade',socket.upgrade)
 
-httpsServer.listen(process.env.HTTPS_PORT, "0.0.0.0", () => {
-    console.log(httpsServer.address());
-});
+httpServer.listen(process.env.HTTP_PORT,'0.0.0.0',() => console.log(httpServer.address()))
+httpsServer.listen(process.env.HTTPS_PORT,'0.0.0.0',() => console.log(httpsServer.address()))
+

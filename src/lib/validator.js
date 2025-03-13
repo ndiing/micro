@@ -1,81 +1,76 @@
-const converter = {
-    type: (type, value) => {
-        const types = {
-            string: (val) => (val == null ? "" : String(val)),
-            number: (val) => (isNaN(Number(val)) ? 0 : Number(val)),
-            boolean: (val) => !!val,
-        };
+/**
+ * @namespace Validator
+ */
 
-        return types[type] ? types[type](value) : value;
-    },
-};
 const validator = {
-    required: (expected = true, message = "required value") => {
-        return (value) => {
-            return (value !== undefined && value !== null && value !== "") === expected || message;
-        };
-    },
+    required: (expected, message = "Value is required") => (value) =>
+        (value !== undefined && value !== null) === expected || message,
 
-    minLength: (expected, message = `minimum ${expected} characters required`) => {
-        return (value) => {
-            return (typeof value === "string" && value.length >= expected) || message;
-        };
-    },
+    minLength: (expected, message = `Minimum length is ${expected} characters`) => (value) =>
+        (typeof value === "string" && value.length >= expected) || message,
 
-    maxLength: (expected, message = `maximum ${expected} characters allowed`) => {
-        return (value) => {
-            return (typeof value === "string" && value.length <= expected) || message;
-        };
-    },
+    maxLength: (expected, message = `Maximum length is ${expected} characters`) => (value) =>
+        (typeof value === "string" && value.length <= expected) || message,
 
-    min: (expected, message = `value must be at least ${expected}`) => {
-        return (value) => {
-            return (typeof value === "number" && value >= expected) || message;
-        };
-    },
+    pattern: (expected, message = "Value does not match the required pattern") => (value) =>
+        (typeof value === "string" && expected.test(value)) || message,
 
-    max: (expected, message = `value must be at most ${expected}`) => {
-        return (value) => {
-            return (typeof value === "number" && value <= expected) || message;
-        };
-    },
+    min: (expected, message = `Value must be at least ${expected}`) => (value) =>
+        (typeof value === "number" && value >= expected) || message,
 
-    pattern: (expected, message = "invalid pattern") => {
-        return (value) => {
-            return (typeof value === "string" && expected.test(value)) || message;
+    max: (expected, message = `Value must be at most ${expected}`) => (value) =>
+        (typeof value === "number" && value <= expected) || message,
+};
+
+const converter = {
+    type: (expected, value) => {
+        const types = {
+            string: (value) => String(value ?? ""),
+            number: (value) => (isNaN(Number(value)) ? 0 : Number(value)),
+            boolean: (value) => (typeof value === "string" ? (value === "true" ? true : value === "1" ? true : false) : value ?? false),
         };
+        return types[expected] ? types[expected](value) : value;
     },
 };
 
+/**
+ * 
+ * @memberof Validator
+ */
 function validate(schema, data) {
-    const errors = {};
     const result = {};
-
+    const errors = {};
     for (const name in schema) {
-        const properties = schema[name];
         let value = data[name];
 
-        for (const prop in properties) {
-            if (converter[prop]) {
-                value = converter[prop](properties[prop], value);
+        const properties = schema[name];
+
+        for (const property in properties) {
+            const expected = properties[property];
+
+            const method = converter[property];
+            if (method) {
+                value = method(expected, value);
             }
         }
 
         result[name] = value;
-        const errorMessages = [];
+        const messages = [];
 
-        for (const prop in properties) {
-            if (validator[prop]) {
-                const validation = validator[prop](properties[prop])(value);
+        for (const property in properties) {
+            const expected = properties[property];
 
-                if (validation !== true) {
-                    errorMessages.push(validation);
+            const method = validator[property];
+            if (method) {
+                const message = method(expected)(value);
+                if (typeof message === "string") {
+                    messages.push(message);
                 }
             }
         }
 
-        if (errorMessages.length) {
-            errors[name] = errorMessages;
+        if (messages.length) {
+            errors[name] = messages;
         }
     }
 
@@ -83,32 +78,8 @@ function validate(schema, data) {
 }
 
 module.exports = {
-    converter,
     validator,
+    converter,
     validate,
 };
-// // usage
-// // add custom validator
 
-// validator.isEmail = (expected = true, message = "invalid email format") => {
-
-//     return (value) => {
-
-//         return (typeof value === "string" && /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) || message;
-//     };
-// };
-// // create schema
-// const schema = {
-//     user: { type: "string", required: true, minLength: 8 },
-//     pass: { type: "string", required: true, minLength: 8, maxLength: 16 },
-//     email: { type: "string", required: true, isEmail: true },
-//     age: { type: "number", required: true, min: 17, max: 40 },
-// };
-// const data = {
-//     user: "username",
-//     pass: "password",
-//     email: "ndiing.inc@gmail.com",
-//     age: 35,
-// };
-// // validate data
-// console.log(validate(schema, data));

@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const { get } = require("./mssql");
 
 class DDL {
     constructor(databaseName, config) {
@@ -293,11 +292,8 @@ class DDL {
         const queries = this.build(oldDb, newDb);
 
         if (queries.length) {
-            const pool = await get("default", config);
-            const request = pool.request();
 
             for (const query of queries) {
-                const result = await request.query(query);
             }
 
             this.write(filename, newDb);
@@ -306,42 +302,3 @@ class DDL {
 }
 
 module.exports = DDL;
-// const config = {
-//     server: "localhost",
-//     options: {
-//         trustedConnection: true,
-//         trustServerCertificate: true,
-//     },
-// };
-// const ddl = new DDL("my_erp", config);
-// ddl.table("pengguna", {
-//     id: { type: "int", notNull: true, pk: true, ai: true },
-//     nama: { type: "varchar(255)", notNull: true },
-// });
-// ddl.table(
-//     "kontak",
-//     {
-//         id: { type: "int", notNull: true, pk: true, ai: true },
-//         id_pengguna: { type: "int", notNull: true, fk: "pengguna.id" },
-//         kontak: { type: "varchar(255)", notNull: true },
-//         tipe: { type: "varchar(255)", notNull: true, check: "tipe IN ('email','whatsapp','sms')" },
-//     },
-//     [{ unique: true, columns: ["kontak", "tipe"] }],
-// );
-// ddl.table("akun", {
-//     id: { type: "varchar(255)", notNull: true, pk: true },
-//     nama: { type: "varchar(255)", notNull: true, index: true },
-// });
-// ddl.table("jurnal", {
-//     id: { type: "varchar(255)", notNull: true, pk: true },
-//     tanggal: { type: "datetime", notNull: true },
-//     keterangan: { type: "varchar(255)", notNull: true },
-// });
-// ddl.table("detail_jurnal", {
-//     id: { type: "varchar(255)", notNull: true, pk: true },
-//     id_jurnal: { type: "varchar(255)", notNull: true, fk: "jurnal.id", index: true },
-//     id_akun: { type: "varchar(255)", notNull: true, fk: "akun.id", index: true },
-//     debit: { type: "decimal(38,18)", notNull: true, def: 0 },
-//     kredit: { type: "decimal(38,17)", notNull: true, def: 0 },
-// });
-// ddl.sync();

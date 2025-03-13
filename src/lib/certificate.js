@@ -1,6 +1,18 @@
 const forge = require("node-forge");
 const fs = require("fs");
+
+/**
+ * @namespace Certificate
+ */
+
 const Util = {
+
+    /**
+     * Checks if the given domain is an IP address.
+     * @memberof Certificate
+     * @param {string} [domain=""] - The domain to check.
+     * @returns {boolean} True if the domain is an IP address, otherwise false.
+     */
     isIpDomain: function (domain = "") {
         const ipReg = /^\d+?\.\d+?\.\d+?\.\d+?$/;
 
@@ -15,6 +27,12 @@ let defaultAttrs = [
     { shortName: "OU", value: "Ndiing" },
 ];
 
+/**
+ * Returns the subject alternative name extension based on the given domain.
+ * @memberof Certificate
+ * @param {string} [domain=""] - The domain for the subject alternative name.
+ * @returns {Object} The subject alternative name extension.
+ */
 function getExtensionSAN(domain = "") {
     const isIpDomain = Util.isIpDomain(domain);
 
@@ -31,6 +49,12 @@ function getExtensionSAN(domain = "") {
     }
 }
 
+/**
+ * Generates a key pair and certificate with the given serial number.
+ * @memberof Certificate
+ * @param {string} [serialNumber] - The serial number for the certificate.
+ * @returns {Object} The generated keys and certificate.
+ */
 function getKeysAndCert(serialNumber) {
     const keys = forge.pki.rsa.generateKeyPair(2048);
     const cert = forge.pki.createCertificate();
@@ -46,6 +70,12 @@ function getKeysAndCert(serialNumber) {
     };
 }
 
+/**
+ * Generates a root certificate authority (CA).
+ * @memberof Certificate
+ * @param {string} [commonName="CertManager"] - The common name for the root CA.
+ * @returns {Object} The generated root CA keys and certificate.
+ */
 function generateRootCA(commonName) {
     const keysAndCert = getKeysAndCert();
     const keys = keysAndCert.keys;
@@ -69,6 +99,15 @@ function generateRootCA(commonName) {
     };
 }
 
+/**
+ * Generates certificates for the given hostname using the provided root CA configuration.
+ * @memberof Certificate
+ * @param {string} domain - The hostname to generate certificates for.
+ * @param {Object} rootCAConfig - The root CA configuration.
+ * @param {string} rootCAConfig.key - The root CA private key in PEM format.
+ * @param {string} rootCAConfig.cert - The root CA certificate in PEM format.
+ * @returns {Object} The generated keys and certificate for the hostname.
+ */
 function generateCertsForHostname(domain, rootCAConfig) {
     const md = forge.md.md5.create();
     md.update(domain);
@@ -96,11 +135,21 @@ function generateCertsForHostname(domain, rootCAConfig) {
     };
 }
 
+/**
+ * Sets the default attributes for certificate generation.
+ * @memberof Certificate
+ * @param {Array} attrs - The default attributes to set.
+ */
 function setDefaultAttrs(attrs) {
     defaultAttrs = attrs;
 }
 
-function getCerts() {
+/**
+ * Generates and returns certificates for the hostname, creating them if they do not exist.
+ * @memberof Certificate
+ * @returns {Object} The certificates for the hostname.
+ */
+function getCertsForHostname() {
     if (!fs.existsSync("./certs/host.key")) {
         const { privateKey, certificate } = generateRootCA();
         const hostCert = generateCertsForHostname("localhost", {
@@ -125,5 +174,5 @@ module.exports = {
     generateRootCA,
     generateCertsForHostname,
     setDefaultAttrs,
-    getCerts,
+    getCertsForHostname,
 };
