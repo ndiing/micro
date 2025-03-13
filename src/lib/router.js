@@ -118,6 +118,7 @@ class Router {
                 err = error;
             }
         };
+
         try {
             for (const route of this.routes) {
                 if (end) {
@@ -176,7 +177,7 @@ class Router {
             res.statusCode = 500;
         }
         err = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)));
-        res.json({message:err.message});
+        res.json({ message: err.message });
     }
 
     /**

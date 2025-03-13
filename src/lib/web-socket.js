@@ -17,7 +17,7 @@ class WebSocket extends EventEmitter {
         this.clients = new Map();
         this.upgrade = this.upgrade.bind(this);
 
-        if (server===undefined||server===null) {
+        if (server === undefined || server === null) {
             server = http.createServer((req, res) => res.end(null));
             server.on("upgrade", this.upgrade);
             server.listen(80, () => console.log(server.address()));
@@ -57,7 +57,6 @@ class WebSocket extends EventEmitter {
 
             if (message === null) {
                 socket.end();
-
                 return;
             }
             client.emit("message", message);
@@ -123,11 +122,11 @@ class WebSocket extends EventEmitter {
             payloadLength = Number(frame.readBigUInt64BE(offset));
             offset += 8;
         }
-        let payload = frame.slice(offset);
+        let payload = frame.subarray(offset);
 
         if (masked) {
-            const maskKey = payload.slice(0, 4);
-            payload = payload.slice(4).map((byte, i) => byte ^ maskKey[i % 4]);
+            const maskKey = payload.subarray(0, 4);
+            payload = payload.subarray(4).map((byte, i) => byte ^ maskKey[i % 4]);
         }
 
         if (opcode === 0x8) {

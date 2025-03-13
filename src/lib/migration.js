@@ -292,7 +292,6 @@ class DDL {
         const queries = this.build(oldDb, newDb);
 
         if (queries.length) {
-
             for (const query of queries) {
             }
 

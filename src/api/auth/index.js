@@ -1,7 +1,6 @@
 const Router = require("../../lib/router");
-const Controller = require('./controller.js')
+const Controller = require("./controller.js");
 
-const router = new Router()
+const router = new Router();
 
-
-module.exports=router
+module.exports = router;

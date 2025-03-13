@@ -1,8 +1,8 @@
 const Router = require("../lib/router");
 
-const router = new Router()
+const router = new Router();
 
-router.use('/main',require('./main/index.js'))
-router.use('/auth',require('./auth/index.js'))
+router.use("/main", require("./main/index.js"));
+router.use("/auth", require("./auth/index.js"));
 
-module.exports=router
+module.exports = router;

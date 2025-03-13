@@ -1,44 +1,43 @@
-class Controller{
-    static async post(req,res,next){
+class Controller {
+    static async post(req, res, next) {
         try {
-            res.json({message:'post from main'})
+            res.json({ message: "post from main" });
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 
-    static async get(req,res,next){
+    static async get(req, res, next) {
         try {
-            res.json({message:'get from main'})
+            res.json({ message: "get from main" });
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 
-    static async getAll(req,res,next){
+    static async getAll(req, res, next) {
         try {
-            res.json({message:'getAll from main'})
+            res.json({ message: "getAll from main" });
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 
-    static async patch(req,res,next){
+    static async patch(req, res, next) {
         try {
-            res.json({message:'patch from main'})
+            res.json({ message: "patch from main" });
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 
-    static async delete(req,res,next){
+    static async delete(req, res, next) {
         try {
-            res.json({message:'delete from main'})
+            res.json({ message: "delete from main" });
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
-
 }
 
-module.exports=Controller
+module.exports = Controller;
