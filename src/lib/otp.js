@@ -99,7 +99,7 @@ function hotp({ key, counter, algorithm = "sha1", digits = 6, encoding = "ascii"
  * @memberof OTP
  * @param {Object} options - The options for generating the TOTP.
  * @param {string} options.key - The secret key used for generating the TOTP.
- * @param {number} [options.T] - The current time in seconds.
+ * @param {number} [options.T=Math.floor(Date.now() / 1000)] - The current time in seconds.
  * @param {number} [options.T0=0] - The start time in seconds.
  * @param {number} [options.X=30] - The time step in seconds.
  * @param {string} [options.algorithm="sha1"] - The hash algorithm to use (e.g., "sha1", "sha256", "sha512").
@@ -107,9 +107,9 @@ function hotp({ key, counter, algorithm = "sha1", digits = 6, encoding = "ascii"
  * @param {string} [options.encoding="ascii"] - The encoding of the secret key.
  * @returns {string} The generated TOTP.
  */
-function totp({ key, T=Math.floor(Date.now() / 1000), T0 = 0, X = 30, algorithm = "sha1", digits = 6, encoding = "ascii",counter = Math.floor((T - T0) / X) }) {
+function totp({ key, T=Math.floor(Date.now() / 1000), T0 = 0, X = 30, algorithm = "sha1", digits = 6, encoding = "ascii", }) {
 
-    return hotp({ key, counter, algorithm, digits, encoding });
+    return hotp({ key, counter :Math.floor((T - T0) / X), algorithm, digits, encoding });
 }
 
 /**

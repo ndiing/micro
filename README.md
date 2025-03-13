@@ -410,7 +410,7 @@ Generates a Time-based One-Time Password (TOTP).
 | --- | --- | --- | --- |
 | options | <code>Object</code> |  | The options for generating the TOTP. |
 | options.key | <code>string</code> |  | The secret key used for generating the TOTP. |
-| [options.T] | <code>number</code> |  | The current time in seconds. |
+| [options.T] | <code>number</code> | <code>Math.floor(Date.now() / 1000)</code> | The current time in seconds. |
 | [options.T0] | <code>number</code> | <code>0</code> | The start time in seconds. |
 | [options.X] | <code>number</code> | <code>30</code> | The time step in seconds. |
 | [options.algorithm] | <code>string</code> | <code>&quot;\&quot;sha1\&quot;&quot;</code> | The hash algorithm to use (e.g., "sha1", "sha256", "sha512"). |
@@ -443,5 +443,14 @@ Generates an otpauth URL and corresponding QR code for OTP configuration.
 **Kind**: global namespace  
 <a name="Validator.validate"></a>
 
-### Validator.validate()
+### Validator.validate(schema, data) ⇒ <code>Object</code>
+Validates and converts data based on a schema.
+
 **Kind**: static method of [<code>Validator</code>](#Validator)  
+**Returns**: <code>Object</code> - The result object containing the converted values and any validation errors.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| schema | <code>Object</code> | The schema defining the validation and conversion rules. |
+| data | <code>Object</code> | The data to validate and convert. |
+
