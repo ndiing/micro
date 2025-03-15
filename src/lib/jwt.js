@@ -1,5 +1,4 @@
 const crypto = require("crypto");
-
 /**
  * Signer class responsible for creating cryptographic signatures.
  */
@@ -71,7 +70,12 @@ class Signer {
      * @returns {string} The generated signature in base64url format.
      */
     static ES256(data, secret) {
-        return crypto.sign("sha256", data, { key: secret, dsaEncoding: "ieee-p1363" }).toString("base64url");
+        return crypto
+            .sign("sha256", data, {
+                key: secret,
+                dsaEncoding: "ieee-p1363",
+            })
+            .toString("base64url");
     }
 
     /**
@@ -81,7 +85,12 @@ class Signer {
      * @returns {string} The generated signature in base64url format.
      */
     static ES384(data, secret) {
-        return crypto.sign("sha384", data, { key: secret, dsaEncoding: "ieee-p1363" }).toString("base64url");
+        return crypto
+            .sign("sha384", data, {
+                key: secret,
+                dsaEncoding: "ieee-p1363",
+            })
+            .toString("base64url");
     }
 
     /**
@@ -91,7 +100,12 @@ class Signer {
      * @returns {string} The generated signature in base64url format.
      */
     static ES512(data, secret) {
-        return crypto.sign("sha512", data, { key: secret, dsaEncoding: "ieee-p1363" }).toString("base64url");
+        return crypto
+            .sign("sha512", data, {
+                key: secret,
+                dsaEncoding: "ieee-p1363",
+            })
+            .toString("base64url");
     }
 
     /**
@@ -101,7 +115,12 @@ class Signer {
      * @returns {string} The generated signature in base64url format.
      */
     static PS256(data, secret) {
-        return crypto.sign("sha256", data, { key: secret, padding: crypto.constants.RSA_PKCS1_PSS_PADDING }).toString("base64url");
+        return crypto
+            .sign("sha256", data, {
+                key: secret,
+                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+            })
+            .toString("base64url");
     }
 
     /**
@@ -111,7 +130,12 @@ class Signer {
      * @returns {string} The generated signature in base64url format.
      */
     static PS384(data, secret) {
-        return crypto.sign("sha384", data, { key: secret, padding: crypto.constants.RSA_PKCS1_PSS_PADDING }).toString("base64url");
+        return crypto
+            .sign("sha384", data, {
+                key: secret,
+                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+            })
+            .toString("base64url");
     }
 
     /**
@@ -121,10 +145,14 @@ class Signer {
      * @returns {string} The generated signature in base64url format.
      */
     static PS512(data, secret) {
-        return crypto.sign("sha512", data, { key: secret, padding: crypto.constants.RSA_PKCS1_PSS_PADDING }).toString("base64url");
+        return crypto
+            .sign("sha512", data, {
+                key: secret,
+                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+            })
+            .toString("base64url");
     }
 }
-
 /**
  * Verifier class responsible for verifying cryptographic signatures.
  */
@@ -138,6 +166,7 @@ class Verifier {
      */
     static HS256(signature, data, secret) {
         const expected = crypto.createHmac("sha256", secret).update(data).digest();
+
         return crypto.timingSafeEqual(Buffer.from(signature, "base64url"), expected);
     }
 
@@ -150,6 +179,7 @@ class Verifier {
      */
     static HS384(signature, data, secret) {
         const expected = crypto.createHmac("sha384", secret).update(data).digest();
+
         return crypto.timingSafeEqual(Buffer.from(signature, "base64url"), expected);
     }
 
@@ -162,6 +192,7 @@ class Verifier {
      */
     static HS512(signature, data, secret) {
         const expected = crypto.createHmac("sha512", secret).update(data).digest();
+
         return crypto.timingSafeEqual(Buffer.from(signature, "base64url"), expected);
     }
 
@@ -206,7 +237,15 @@ class Verifier {
      * @returns {boolean} True if the signature is valid, otherwise false.
      */
     static ES256(signature, data, secret) {
-        return crypto.verify("sha256", data, { key: secret, dsaEncoding: "ieee-p1363" }, Buffer.from(signature, "base64url"));
+        return crypto.verify(
+            "sha256",
+            data,
+            {
+                key: secret,
+                dsaEncoding: "ieee-p1363",
+            },
+            Buffer.from(signature, "base64url"),
+        );
     }
 
     /**
@@ -217,7 +256,15 @@ class Verifier {
      * @returns {boolean} True if the signature is valid, otherwise false.
      */
     static ES384(signature, data, secret) {
-        return crypto.verify("sha384", data, { key: secret, dsaEncoding: "ieee-p1363" }, Buffer.from(signature, "base64url"));
+        return crypto.verify(
+            "sha384",
+            data,
+            {
+                key: secret,
+                dsaEncoding: "ieee-p1363",
+            },
+            Buffer.from(signature, "base64url"),
+        );
     }
 
     /**
@@ -228,7 +275,15 @@ class Verifier {
      * @returns {boolean} True if the signature is valid, otherwise false.
      */
     static ES512(signature, data, secret) {
-        return crypto.verify("sha512", data, { key: secret, dsaEncoding: "ieee-p1363" }, Buffer.from(signature, "base64url"));
+        return crypto.verify(
+            "sha512",
+            data,
+            {
+                key: secret,
+                dsaEncoding: "ieee-p1363",
+            },
+            Buffer.from(signature, "base64url"),
+        );
     }
 
     /**
@@ -239,7 +294,15 @@ class Verifier {
      * @returns {boolean} True if the signature is valid, otherwise false.
      */
     static PS256(signature, data, secret) {
-        return crypto.verify("sha256", data, { key: secret, padding: crypto.constants.RSA_PKCS1_PSS_PADDING }, Buffer.from(signature, "base64url"));
+        return crypto.verify(
+            "sha256",
+            data,
+            {
+                key: secret,
+                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+            },
+            Buffer.from(signature, "base64url"),
+        );
     }
 
     /**
@@ -250,7 +313,15 @@ class Verifier {
      * @returns {boolean} True if the signature is valid, otherwise false.
      */
     static PS384(signature, data, secret) {
-        return crypto.verify("sha384", data, { key: secret, padding: crypto.constants.RSA_PKCS1_PSS_PADDING }, Buffer.from(signature, "base64url"));
+        return crypto.verify(
+            "sha384",
+            data,
+            {
+                key: secret,
+                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+            },
+            Buffer.from(signature, "base64url"),
+        );
     }
 
     /**
@@ -261,7 +332,24 @@ class Verifier {
      * @returns {boolean} True if the signature is valid, otherwise false.
      */
     static PS512(signature, data, secret) {
-        return crypto.verify("sha512", data, { key: secret, padding: crypto.constants.RSA_PKCS1_PSS_PADDING }, Buffer.from(signature, "base64url"));
+        return crypto.verify(
+            "sha512",
+            data,
+            {
+                key: secret,
+                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+            },
+            Buffer.from(signature, "base64url"),
+        );
+    }
+}
+
+const ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "ES256", "ES384", "ES512", "PS256", "PS384", "PS512"];
+
+class JWTError extends Error{
+    constructor(message,code){
+        super(message)
+        this.code=code
     }
 }
 
@@ -277,32 +365,49 @@ class JWT {
      * @returns {string} The encoded JWT.
      * @throws {Error} If the secret is not provided.
      */
-    static encode(payload, secret = "", header) {
+    static encode(payload = {}, secret = "", header = {}) {
         if (!secret) {
-            throw new Error("required secret");
+            throw new JWTError("Encoding failed: Secret key is required.",'INVALID_INPUT');
         }
+
+        if (typeof payload !== "object") {
+            throw new JWTError("Encoding failed: Payload must be an object.",'INVALID_INPUT');
+        }
+
+        if (typeof header !== "object") {
+            throw new JWTError("Encoding failed: Header must be an object.",'INVALID_INPUT');
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+
         payload = {
-            iat: Math.floor(Date.now() / 1000), // s
-            // nbf: 0, // s
-            // exp: 300, // s
+            iat: now,
             ...payload,
         };
+
         header = {
             alg: "HS256",
             typ: "JWT",
             ...header,
         };
 
+        if (!header.alg || !ALGORITHMS.includes(header.alg)) {
+            throw new JWTError(`Encoding failed: 'alg' must be one of [${ALGORITHMS.join(", ")}].`,'INVALID_INPUT');
+        }
+
         if (payload.nbf) {
-            payload.nbf = Math.floor(Date.now() / 1000) + payload.nbf;
+            payload.nbf = now + payload.nbf;
         }
 
         if (payload.exp) {
-            payload.exp = Math.floor(Date.now() / 1000) + payload.exp;
+            payload.exp = now + payload.exp;
         }
+
         const sign = Signer[header.alg];
+
         header = Buffer.from(JSON.stringify(header)).toString("base64url");
         payload = Buffer.from(JSON.stringify(payload)).toString("base64url");
+
         const data = [header, payload].join(".");
         const signature = sign(data, secret);
         const token = [data, signature].join(".");
@@ -319,34 +424,53 @@ class JWT {
      */
     static decode(token = "", secret = "") {
         if (!token) {
-            throw new Error("required token");
+            throw new JWTError("Decoding failed: JWT token is required.",'INVALID_INPUT');
         }
 
         if (!secret) {
-            throw new Error("required secret");
+            throw new JWTError("Decoding failed: Secret key is required.",'INVALID_INPUT');
         }
-        let [header, payload, signature] = (token || "").split(".");
+        const parts = (token || "").split(".");
 
-        if (!header || !payload || !signature) {
-            throw new Error("The access token provided is malformed");
+        if (parts.length !== 3) {
+            throw new JWTError("Decoding failed: Invalid JWT format. Expected 3 parts (header.payload.signature).",'INVALID_INPUT');
         }
+        let [header, payload, signature] = parts;
 
         const data = [header, payload].join(".");
-        header = JSON.parse(Buffer.from(header, "base64url", { ignoreBOM: true }).toString());
+
+        header = JSON.parse(
+            Buffer.from(header, "base64url", {
+                ignoreBOM: true,
+            }).toString(),
+        );
 
         const verify = Verifier[header.alg];
 
-        if (!verify(signature, data, secret)) {
-            throw new Error("The access token provided is malformed");
+        const invalid_signature = !verify(signature, data, secret);
+
+        if (invalid_signature) {
+            throw new JWTError("Decoding failed: Signature verification failed.",'INVALID_SIGNATURE');
         }
 
-        payload = JSON.parse(Buffer.from(payload, "base64url", { ignoreBOM: true }).toString());
-        if (payload.nbf && Math.floor(Date.now() / 1000) < payload.nbf) {
-            throw new Error("The access token is not yet valid");
+        payload = JSON.parse(
+            Buffer.from(payload, "base64url", {
+                ignoreBOM: true,
+            }).toString(),
+        );
+
+        const now = Math.floor(Date.now() / 1000);
+
+        const invalid_nbf = !!(payload.nbf && now < payload.nbf);
+
+        if (invalid_nbf) {
+            throw new JWTError(`Decoding failed: Token is not yet valid (nbf=${payload.nbf}, now=${now}).`,'INVALID_NBF');
         }
 
-        if (payload.exp && Math.floor(Date.now() / 1000) >= payload.exp) {
-            throw new Error("The access token provided is expired");
+        const invalid_exp = !!(payload.exp && now >= payload.exp);
+
+        if (invalid_exp) {
+            throw new JWTError(`Decoding failed: Token has expired (exp=${payload.exp}, now=${now}).`,'INVALID_EXP');
         }
 
         return payload;

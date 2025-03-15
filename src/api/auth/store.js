@@ -1,3 +1,5 @@
+const crypto = require("crypto");
+
 /* users */
 class UsersStore {
     static data = [{ id: "1" }];
@@ -8,6 +10,24 @@ class ContactsStore {
 
     static getByContactType({ contact, type } = {}) {
         return this.data.find((item) => item.contact === contact && item.type == type);
+    }
+
+    static post({ contact, type } = {}) {
+        const id = crypto.randomUUID();
+        UsersStore.data.push({ id });
+        const contactResult = {
+            id: crypto.randomUUID(),
+            user_id: id,
+            contact,
+            type,
+        };
+        ContactsStore.data.push(contactResult);
+        UserGroupsStore.data.push({
+            id: crypto.randomUUID(),
+            user_id: id,
+            group_id: "1",
+        });
+        return contactResult;
     }
 }
 /* groups */
@@ -40,7 +60,13 @@ class PermissionsStore {
         return oldValue.split(",").includes(value);
     }
     static getBy({ group_id, path, method, type }) {
-        return this.data.find((item) => item.group_id === group_id && this.matchPath(item.path, path) && this.matchMethod(item.method, method) && item.type === type);
+        return this.data.find(
+            (item) =>
+                item.group_id === group_id &&
+                this.matchPath(item.path, path) &&
+                // && this.matchMethod(item.method, method)
+                item.type === type,
+        );
     }
 }
 

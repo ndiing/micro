@@ -1,0 +1,18 @@
+###
+POST http://localhost/api/auth/login
+Content-Type: application/json
+
+{
+    "contact":"6281935155404",
+    "type":"whatsapp"
+}
+
+###
+POST http://localhost/api/auth/verify
+Content-Type: application/json
+
+{
+    "contact":"6281935155404",
+    "type":"whatsapp",
+    "otp":"072918"
+}
