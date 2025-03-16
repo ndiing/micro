@@ -4,6 +4,7 @@ const crypto = require("crypto");
 class UsersStore {
     static data = [{ id: "1" }];
 }
+
 /* contacts */
 class ContactsStore {
     static data = [{ id: "1", user_id: "1", contact: "6281935155404", type: "whatsapp" }];
@@ -27,13 +28,16 @@ class ContactsStore {
             user_id: id,
             group_id: "1",
         });
+
         return contactResult;
     }
 }
+
 /* groups */
 class GroupsStore {
     static data = [{ id: "1", name: "admin" }];
 }
+
 /* user_groups */
 class UserGroupsStore {
     static data = [{ id: "1", user_id: "1", group_id: "1" }];
@@ -42,6 +46,7 @@ class UserGroupsStore {
         return this.data.find((item) => item.user_id === user_id);
     }
 }
+
 /* permissions */
 class PermissionsStore {
     static data = [{ id: "1", group_id: "1", path: "/", method: "POST,GET,PATCH,DELETE", type: "access_token", access: "any" }];
@@ -56,17 +61,13 @@ class PermissionsStore {
             "i",
         ).test(value);
     }
+
     static matchMethod(oldValue, value) {
         return oldValue.split(",").includes(value);
     }
+
     static getBy({ group_id, path, method, type }) {
-        return this.data.find(
-            (item) =>
-                item.group_id === group_id &&
-                this.matchPath(item.path, path) &&
-                // && this.matchMethod(item.method, method)
-                item.type === type,
-        );
+        return this.data.find((item) => item.group_id === group_id && this.matchPath(item.path, path) && this.matchMethod(item.method, method) && item.type === type);
     }
 }
 
@@ -77,3 +78,5 @@ module.exports = {
     UserGroupsStore,
     PermissionsStore,
 };
+
+

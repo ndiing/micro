@@ -193,4 +193,32 @@ class Router {
     }
 }
 
+function parseBody() {
+    return async function (req, res, next) {
+        try {
+            if ([
+                'POST',
+                'PUT',
+                'PATCH',
+            ].includes(req.method)) {
+                const chunks = [];
+                for await (const chunk of req) {
+                    chunks.push(chunk);
+                }
+                const buffer = Buffer.concat(chunks);
+                const contentType = (req.headers['content-type'] ?? '');
+                if (contentType.includes('application/json')) {
+                    req.body = JSON.parse(buffer);
+                }
+            }
+            next();
+        } catch (error) {
+            next(error);
+        }
+    };
+}
+
+Router.parseBody = parseBody;
+
 module.exports = Router;
+

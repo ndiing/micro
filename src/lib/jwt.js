@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+
 /**
  * Signer class responsible for creating cryptographic signatures.
  */
@@ -153,6 +154,7 @@ class Signer {
             .toString("base64url");
     }
 }
+
 /**
  * Verifier class responsible for verifying cryptographic signatures.
  */
@@ -344,46 +346,54 @@ class Verifier {
     }
 }
 
-const ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "ES256", "ES384", "ES512", "PS256", "PS384", "PS512"];
+// const ALGORITHMS = Object.getOwnPropertyNames(Signer).filter(name=>![
+//     'length',
+//     'prototype',
+//     'name',
+// ].includes(name))
+// console.log(ALGORITHMS)
+/* prettier-ignore */
+const ALGORITHMS = [
+    'HS256', 'HS384',
+    'HS512', 'RS256',
+    'RS384', 'RS512',
+    'ES256', 'ES384',
+    'ES512', 'PS256',
+    'PS384', 'PS512'
+  ]
 
-class JWTError extends Error{
-    constructor(message,code){
-        super(message)
-        this.code=code
+
+class JWTError extends Error {
+    constructor(message, code) {
+        super(message);
+        this.code = code;
     }
 }
 
 /**
- * JWT class responsible for encoding and decoding JSON Web Tokens (JWT).
+ * JWT class responsible for handling JSON Web Tokens (JWT), including encoding, decoding, signing, and verifying.
  */
 class JWT {
     /**
-     * Encodes a payload into a JSON Web Token (JWT) using the specified algorithm and secret.
-     * @param {Object} payload - The payload to encode.
-     * @param {string} [secret=""] - The secret key used for signing the token.
-     * @param {Object} [header] - Additional header values for the token.
-     * @returns {string} The encoded JWT.
-     * @throws {Error} If the secret is not provided.
+     * Encodes a payload and header into a JSON Web Token (JWT).
+     * @param {Object} [payload={}] - The payload to encode.
+     * @param {string} [secret=""] - The secret key used to sign the token.
+     * @param {Object} [header={}] - Additional header fields for the token.
+     * @returns {Object} An object containing the encoded data and signature.
+     * @throws {JWTError} If the secret is missing, or payload/header are invalid.
      */
     static encode(payload = {}, secret = "", header = {}) {
         if (!secret) {
-            throw new JWTError("Encoding failed: Secret key is required.",'INVALID_INPUT');
+            throw new JWTError("Encoding failed: Secret key is required.", "INVALID_INPUT");
         }
 
         if (typeof payload !== "object") {
-            throw new JWTError("Encoding failed: Payload must be an object.",'INVALID_INPUT');
+            throw new JWTError("Encoding failed: Payload must be an object.", "INVALID_INPUT");
         }
 
         if (typeof header !== "object") {
-            throw new JWTError("Encoding failed: Header must be an object.",'INVALID_INPUT');
+            throw new JWTError("Encoding failed: Header must be an object.", "INVALID_INPUT");
         }
-
-        const now = Math.floor(Date.now() / 1000);
-
-        payload = {
-            iat: now,
-            ...payload,
-        };
 
         header = {
             alg: "HS256",
@@ -392,48 +402,41 @@ class JWT {
         };
 
         if (!header.alg || !ALGORITHMS.includes(header.alg)) {
-            throw new JWTError(`Encoding failed: 'alg' must be one of [${ALGORITHMS.join(", ")}].`,'INVALID_INPUT');
-        }
-
-        if (payload.nbf) {
-            payload.nbf = now + payload.nbf;
-        }
-
-        if (payload.exp) {
-            payload.exp = now + payload.exp;
+            throw new JWTError(`Encoding failed: 'alg' must be one of [${ALGORITHMS.join(", ")}].`, "INVALID_INPUT");
         }
 
         const sign = Signer[header.alg];
-
         header = Buffer.from(JSON.stringify(header)).toString("base64url");
         payload = Buffer.from(JSON.stringify(payload)).toString("base64url");
-
         const data = [header, payload].join(".");
-        const signature = sign(data, secret);
-        const token = [data, signature].join(".");
 
-        return token;
+        const signature = sign(data, secret);
+
+        return {
+            data,
+            signature,
+        };
     }
 
     /**
-     * Decodes and verifies a JSON Web Token (JWT).
-     * @param {string} [token=""] - The JWT to decode.
-     * @param {string} [secret=""] - The secret key used for verification.
-     * @returns {Object} The decoded payload.
-     * @throws {Error} If the token or secret is not provided, if the token is malformed, or if the token is expired.
+     * Decodes and validates a JSON Web Token (JWT).
+     * @param {string} [token=""] - The JWT to decode and validate.
+     * @param {string} [secret=""] - The secret key used for validation.
+     * @returns {Object} An object containing the decoded payload and validation status (e.g., invalid signature, expiration).
+     * @throws {JWTError} If the token format is invalid or the secret is missing.
      */
     static decode(token = "", secret = "") {
         if (!token) {
-            throw new JWTError("Decoding failed: JWT token is required.",'INVALID_INPUT');
+            throw new JWTError("Decoding failed: JWT token is required.", "INVALID_INPUT");
         }
 
         if (!secret) {
-            throw new JWTError("Decoding failed: Secret key is required.",'INVALID_INPUT');
+            throw new JWTError("Decoding failed: Secret key is required.", "INVALID_INPUT");
         }
-        const parts = (token || "").split(".");
+        const parts = token.split(".");
 
         if (parts.length !== 3) {
-            throw new JWTError("Decoding failed: Invalid JWT format. Expected 3 parts (header.payload.signature).",'INVALID_INPUT');
+            throw new JWTError("Decoding failed: Invalid JWT format. Expected 3 parts (header.payload.signature).", "INVALID_INPUT");
         }
         let [header, payload, signature] = parts;
 
@@ -445,36 +448,100 @@ class JWT {
             }).toString(),
         );
 
-        const verify = Verifier[header.alg];
-
-        const invalid_signature = !verify(signature, data, secret);
-
-        if (invalid_signature) {
-            throw new JWTError("Decoding failed: Signature verification failed.",'INVALID_SIGNATURE');
-        }
-
         payload = JSON.parse(
             Buffer.from(payload, "base64url", {
                 ignoreBOM: true,
             }).toString(),
         );
 
+        const verify = Verifier[header.alg];
+
+        const invalid_signature = !verify(signature, data, secret);
         const now = Math.floor(Date.now() / 1000);
-
         const invalid_nbf = !!(payload.nbf && now < payload.nbf);
-
-        if (invalid_nbf) {
-            throw new JWTError(`Decoding failed: Token is not yet valid (nbf=${payload.nbf}, now=${now}).`,'INVALID_NBF');
-        }
-
         const invalid_exp = !!(payload.exp && now >= payload.exp);
 
+        return {
+            payload,
+            invalid_signature,
+            now,
+            invalid_nbf,
+            invalid_exp,
+        };
+    }
+
+    /**
+     * Generates a complete JSON Web Token (JWT) by encoding and signing the payload.
+     * @param {Object} [payload={}] - The payload to encode.
+     * @param {string} [secret=""] - The secret key used to sign the token.
+     * @param {Object} [header={}] - Additional header fields for the token.
+     * @returns {string} The complete signed JWT.
+     * @throws {JWTError} If the secret is missing, or payload/header are invalid.
+     */
+    static sign(payload = {}, secret = "", header = {}) {
+        const { data, signature } = JWT.encode(payload, secret, header);
+        const token = [data, signature].join(".");
+        return token;
+    }
+
+    /**
+     * Verifies a JSON Web Token (JWT) and checks its validity.
+     * @param {string} [token=""] - The JWT to verify.
+     * @param {string} [secret=""] - The secret key used for verification.
+     * @returns {Object} The decoded payload if the token is valid.
+     * @throws {JWTError} If the token is invalid, expired, or signature verification fails.
+     */
+    static verify(token = "", secret = "") {
+        const { payload, invalid_signature, now, invalid_nbf, invalid_exp } = JWT.decode(token, secret);
+
+        if (invalid_signature) {
+            throw new JWTError("Decoding failed: Signature verification failed.", "INVALID_SIGNATURE");
+        }
+
+        if (invalid_nbf) {
+            throw new JWTError(`Decoding failed: Token is not yet valid (nbf=${payload.nbf}, now=${now}).`, "INVALID_NBF");
+        }
+
         if (invalid_exp) {
-            throw new JWTError(`Decoding failed: Token has expired (exp=${payload.exp}, now=${now}).`,'INVALID_EXP');
+            throw new JWTError(`Decoding failed: Token has expired (exp=${payload.exp}, now=${now}).`, "INVALID_EXP");
         }
 
         return payload;
     }
 }
 
+
 module.exports = JWT;
+
+// {
+//     const token = JWT.sign(
+//         {
+//             sub: "1234567890",
+//             name: "John Doe",
+//             iat: 1516239022,
+//         },
+//         "your-256-bit-secret",
+//         {
+//             alg: "HS256",
+//             typ: "JWT",
+//         },
+//     );
+//     const verified = JWT.verify(token, "your-256-bit-secret");
+//     console.log(token);
+//     console.log(verified);
+//     console.log(
+//         JWT.encode(
+//             {
+//                 sub: "1234567890",
+//                 name: "John Doe",
+//                 iat: 1516239022,
+//             },
+//             "your-256-bit-secret",
+//             {
+//                 alg: "HS256",
+//                 typ: "JWT",
+//             },
+//         ),
+//     );
+//     console.log(JWT.decode("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c", "your-256-bit-secret"));
+// }
