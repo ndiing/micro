@@ -11,7 +11,8 @@
         "qrcode": "^1.5.4"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "prettier": "npx prettier . --write",
+        "nodemon": "nodemon src/index.js"
     },
     "keywords": [],
     "author": "",

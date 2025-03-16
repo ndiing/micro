@@ -2,93 +2,105 @@ const { ContactsStore, UserGroupsStore, PermissionsStore, UsersStore, GroupsStor
 const OTP = require("../../lib/otp");
 const JWT = require("../../lib/jwt");
 const I18n = require("../../lib/i18n.js");
+const crypto = require("crypto");
+
+const OTPCache = new Map();
+const TokenCache = new Map();
 
 class Service {
-    static temp = new Map();
-
-    static login({ contact, type } = {}) {
-        const expires_in = 5 * 60;
-        const secret = OTP.generateSecret("sha1");
-        const counter = Math.floor(Date.now() / 1000) + expires_in;
-
-        if (this.temp.has(contact)) {
-            const temp = this.temp.get(contact);
-            const now = Math.floor(Date.now() / 1000);
-            const remaining = temp.counter - now;
-
+    static async requestOTP({ contact, type } = {}) {
+        let otpData = OTPCache.get(contact);
+        const now = Math.floor(Date.now() / 1000);
+        const expires_in = 60 * 5; // 5m
+        if (otpData) {
+            const remaining = otpData.counter - now;
             if (remaining > 0) {
                 return {
-                    message: I18n.getMessage("Kode OTP sudah dikirim ke ${contact}. Silakan tunggu ${remaining} menit sebelum melakukan permintaan kembali.", {
-                        contact,
-                        remaining: Math.ceil(remaining / 60),
-                    }),
+                    message: I18n.getMessage("Kode OTP sudah dikirim sebelumnya. Silakan coba lagi dalam ${remaining} menit.", { remaining: Math.ceil(remaining / 60) }),
                 };
             }
         }
-        this.temp.set(contact, { secret, counter });
-        const otp = OTP.hotp({ key: secret, counter });
+        otpData = {
+            secret: OTP.generateSecret("sha1"),
+            counter: now + expires_in,
+            resendCounter: 0,
+        };
+        // console.log(otpData)
+        // otpData={ secret: 'N5QXPNHZPIN3RCRB', counter: 1742144217 }
+
+        OTPCache.set(contact, otpData);
+
+        return this.sendOTP({ contact, type });
+    }
+    static async sendOTP({ contact, type } = {}) {
+        const otpData = OTPCache.get(contact);
+
+        if (!otpData) {
+            return {
+                message: I18n.getMessage("Tidak ditemukan permintaan kode OTP. Silakan lakukan permintaan terlebih dahulu.", {}),
+            };
+        }
+
+        if (otpData.resendCounter >= 3) {
+            const now = Math.floor(Date.now() / 1000);
+            const remaining = otpData.counter - now;
+            return {
+                message: I18n.getMessage("Batas pengiriman ulang kode OTP telah tercapai (${resendCounter}x). Silakan tunggu ${remaining} menit sebelum mencoba lagi.", { remaining: Math.ceil(remaining / 60), resendCounter: otpData.resendCounter }),
+            };
+        }
+
+        ++otpData.resendCounter;
+        OTPCache.set(contact, otpData);
+
+        const otp = OTP.hotp({ key: otpData.secret, counter: otpData.counter });
         console.log({
-            message: I18n.getMessage("Kode OTP Anda adalah ${otp}. Berlaku selama ${expires_in} menit.", {
-                otp,
-                expires_in: Math.ceil(expires_in / 60),
-            }),
+            message: I18n.getMessage("Kode OTP Anda: ${otp}", { otp }),
         });
 
         return {
-            message: I18n.getMessage("Masukkan kode OTP yang telah dikirim ke ${contact}.", { contact }),
+            message: I18n.getMessage("Masukkan kode OTP yang dikirim ke ${contact}", { contact }),
         };
     }
+    static async verifyOTP({ contact, type, otp } = {}) {
+        const otpData = OTPCache.get(contact);
 
-    static verify({ contact, type, otp } = {}) {
-        if (!this.temp.has(contact)) {
-            return { message: I18n.getMessage("Tidak ditemukan permintaan login. Silakan coba login terlebih dahulu.") };
+        if (!otpData) {
+            return {
+                message: I18n.getMessage("Tidak ditemukan permintaan kode OTP. Silakan lakukan permintaan terlebih dahulu.", {}),
+            };
         }
-        const temp = this.temp.get(contact);
+
         const now = Math.floor(Date.now() / 1000);
 
-        if (now >= temp.counter) {
-            this.temp.delete(contact);
+        if (now >= otpData.counter) {
+            OTPCache.delete(contact);
 
-            return { message: I18n.getMessage("Kode OTP telah kedaluwarsa. Silakan minta kode baru.") };
+            return {
+                message: I18n.getMessage("Kode OTP telah kedaluwarsa. Silakan minta kode baru.", {}),
+            };
         }
 
-        if (temp.expires_in) {
-
-            return { message: I18n.getMessage("Kode OTP sudah digunakan. Silakan minta kode baru jika perlu.") };
+        if (otp !== OTP.hotp({ key: otpData.secret, counter: otpData.counter })) {
+            return {
+                message: I18n.getMessage("Kode OTP yang Anda masukkan salah. Silakan coba lagi.", {}),
+            };
         }
 
-        if (otp !== OTP.hotp({ key: temp.secret, counter: temp.counter })) {
-            return { message: I18n.getMessage("Kode OTP tidak valid. Pastikan Anda memasukkan kode yang benar.") };
+        let contactItem = await ContactsStore.get({ contact, type });
+        if (!contactItem) {
+            contactItem = await ContactsStore.post({ contact, type });
         }
-        let contactResult = ContactsStore.getByContactType({ contact, type });
 
-        if (!contactResult) {
-            contactResult = ContactsStore.post({ contact, type });
-        }
-        const userGroupResult = UserGroupsStore.getByUserId({ user_id: contactResult.user_id });
-        const expires_in = 5 * 60;
-        const secretKey = process.env.SECRET;
-        const access_token = JWT.encode(
-            {
-                exp: Math.floor(Date.now() / 1000) + expires_in,
-                group_id: userGroupResult.group_id,
-                user_id: userGroupResult.user_id,
-                type: "access_token",
-            },
-            secretKey,
-        );
-        const refresh_token = JWT.encode(
-            {
-                exp: Math.floor(Date.now() / 1000) + 30 * 60,
-                group_id: userGroupResult.group_id,
-                user_id: userGroupResult.user_id,
-                type: "refresh_token",
-            },
-            secretKey,
-        );
-        temp.expires_in=expires_in
-        this.temp.set(contact,temp)
+        OTPCache.delete(contact);
 
+        return this.createToken({ group_id: contactItem.group_id, user_id: contactItem.user_id });
+    }
+
+    static async createToken({ group_id, user_id } = {}) {
+        const now = Math.floor(Date.now() / 1000);
+        const expires_in = 60 * 60; //1h
+        const access_token = JWT.sign({ iat: now, exp: now + expires_in, group_id, user_id, type: "access_token" }, process.env.SECRET);
+        const refresh_token = JWT.sign({ iat: now, exp: now + 60 * 60 * 24, group_id, user_id, type: "refresh_token" }, process.env.SECRET);
         return {
             access_token,
             token_type: "Bearer",
@@ -96,33 +108,40 @@ class Service {
             refresh_token,
         };
     }
+    static async refreshToken({ token } = {}) {
+        const decoded = JWT.decode(token, process.env.SECRET);
+        TokenCache.set(token, 1);
+        return this.createToken({ group_id: decoded.payload.group_id, user_id: decoded.payload.user_id });
+    }
+    static async revokeToken({ token } = {}) {
+        TokenCache.set(token, 1);
+        return { message: I18n.getMessage("Token telah dicabut.") };
+    }
 
-    static check({ token, path, method } = {}) {
-        const secretKey = process.env.SECRET;
-        try {
-            const decoded = JWT.decode(token, secretKey);
-            const { group_id, type } = decoded;
-            const permissionResult = PermissionsStore.getBy({ group_id, path, method, type });
+    static async checkPermission({ method, path, token } = {}) {
+        let payload = { group_id: "", user_id: "", type: "" };
 
-            return !!permissionResult;
-        } catch (error) {
-            return false;
+        if (token) {
+            if (TokenCache.has(token)) {
+                const error = new Error("The access token provided is revoked");
+                error.code = "invalid_token";
+                error.status = 401;
+                throw new Error(error);
+            }
+            payload = JWT.verify(token, process.env.SECRET);
         }
-    }
 
-    static resend({  } = {}) {
-    }
+        const permissionItem = await PermissionsStore.get({ method, path, group_id: payload.group_id, type: payload.type });
 
-    static refresh({  } = {}) {
-    }
+        if (!permissionItem) {
+            const error = new Error("The request requires higher privileges than provided by the access token");
+            error.code = "insufficient_scope";
+            error.status = 403;
+            throw new Error(error);
+        }
 
-    static sendOTP({contact,type}={}){}
-    static verifyOTP({contact,type,otp}={}){}
-    static createToken({}={}){}
-    static revokeToken({}={}){}
-    static refreshToken({}={}){}
-    static checkPermission({}={}){}
+        return { payload, permission: permissionItem };
+    }
 }
 
 module.exports = Service;
-

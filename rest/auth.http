@@ -1,5 +1,5 @@
 ###
-POST http://localhost/api/auth/login
+POST http://localhost/api/auth/request-otp
 Content-Type: application/json
 
 {
@@ -8,11 +8,44 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost/api/auth/verify
+POST http://localhost/api/auth/send-otp
+Content-Type: application/json
+
+{
+    "contact":"6281935155404",
+    "type":"whatsapp"
+}
+
+###
+POST http://localhost/api/auth/verify-otp
 Content-Type: application/json
 
 {
     "contact":"6281935155404",
     "type":"whatsapp",
-    "otp":"747669"
+    "otp":"081581"
+}
+
+###
+POST http://localhost/api/auth/refresh-token
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDIxNDg0MDYsImV4cCI6MTc0MjIzNDgwNiwiZ3JvdXBfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJ0eXBlIjoicmVmcmVzaF90b2tlbiJ9.jyBXgOd_Zu2c4ogxtl-uoE-hH3n-2KSUBeQ-nnXu16g
+Content-Type: application/json
+
+{
+}
+
+###
+POST http://localhost/api/auth/revoke-token
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDIxNDg0MDYsImV4cCI6MTc0MjE1MjAwNiwiZ3JvdXBfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJ0eXBlIjoiYWNjZXNzX3Rva2VuIn0.rTpbDuxom1tyjw91YI4BiTZySjb-N92XIisObEgf-LM
+Content-Type: application/json
+
+{
+}
+
+###
+POST http://localhost/api/auth/revoke-token
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDIxNDg0MDYsImV4cCI6MTc0MjIzNDgwNiwiZ3JvdXBfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJ0eXBlIjoicmVmcmVzaF90b2tlbiJ9.jyBXgOd_Zu2c4ogxtl-uoE-hH3n-2KSUBeQ-nnXu16g
+Content-Type: application/json
+
+{
 }

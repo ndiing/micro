@@ -95,12 +95,11 @@ class Router {
         let err;
         let end;
 
+        res.locals={}
+
         res.send = (data = "") => {
             try {
-                const readable = new Readable();
-                readable.push(data);
-                readable.push(null);
-                readable.pipe(res);
+                Readable.from(data).pipe(res);
                 end = true;
             } catch (error) {
                 err = error;
@@ -177,6 +176,7 @@ class Router {
             res.statusCode = 500;
         }
         err = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+        res.statusCode=err.status||res.statusCode
         res.json({ message: err.message });
     }
 
@@ -196,18 +196,14 @@ class Router {
 function parseBody() {
     return async function (req, res, next) {
         try {
-            if ([
-                'POST',
-                'PUT',
-                'PATCH',
-            ].includes(req.method)) {
+            if (["POST", "PUT", "PATCH"].includes(req.method)) {
                 const chunks = [];
                 for await (const chunk of req) {
                     chunks.push(chunk);
                 }
                 const buffer = Buffer.concat(chunks);
-                const contentType = (req.headers['content-type'] ?? '');
-                if (contentType.includes('application/json')) {
+                const contentType = req.headers["content-type"] ?? "";
+                if (contentType.includes("application/json")) {
                     req.body = JSON.parse(buffer);
                 }
             }
@@ -221,4 +217,3 @@ function parseBody() {
 Router.parseBody = parseBody;
 
 module.exports = Router;
-

@@ -346,12 +346,6 @@ class Verifier {
     }
 }
 
-// const ALGORITHMS = Object.getOwnPropertyNames(Signer).filter(name=>![
-//     'length',
-//     'prototype',
-//     'name',
-// ].includes(name))
-// console.log(ALGORITHMS)
 /* prettier-ignore */
 const ALGORITHMS = [
     'HS256', 'HS384',
@@ -362,11 +356,11 @@ const ALGORITHMS = [
     'PS384', 'PS512'
   ]
 
-
 class JWTError extends Error {
-    constructor(message, code) {
+    constructor({ message, code, status }) {
         super(message);
         this.code = code;
+        this.status = status;
     }
 }
 
@@ -384,15 +378,15 @@ class JWT {
      */
     static encode(payload = {}, secret = "", header = {}) {
         if (!secret) {
-            throw new JWTError("Encoding failed: Secret key is required.", "INVALID_INPUT");
+            throw new JWTError({ message: "The request is missing a required parameter", code: "invalid_request", status: 400 });
         }
 
         if (typeof payload !== "object") {
-            throw new JWTError("Encoding failed: Payload must be an object.", "INVALID_INPUT");
+            throw new JWTError({ message: "The request is missing a required parameter", code: "invalid_request", status: 400 });
         }
 
         if (typeof header !== "object") {
-            throw new JWTError("Encoding failed: Header must be an object.", "INVALID_INPUT");
+            throw new JWTError({ message: "The request is missing a required parameter", code: "invalid_request", status: 400 });
         }
 
         header = {
@@ -402,7 +396,7 @@ class JWT {
         };
 
         if (!header.alg || !ALGORITHMS.includes(header.alg)) {
-            throw new JWTError(`Encoding failed: 'alg' must be one of [${ALGORITHMS.join(", ")}].`, "INVALID_INPUT");
+            throw new JWTError({ message: `The request is missing a required parameter`, code: "invalid_request", status: 400 });
         }
 
         const sign = Signer[header.alg];
@@ -427,16 +421,16 @@ class JWT {
      */
     static decode(token = "", secret = "") {
         if (!token) {
-            throw new JWTError("Decoding failed: JWT token is required.", "INVALID_INPUT");
+            throw new JWTError({ message: "The request is missing a required parameter", code: "invalid_request", status: 400 });
         }
 
         if (!secret) {
-            throw new JWTError("Decoding failed: Secret key is required.", "INVALID_INPUT");
+            throw new JWTError({ message: "The request is missing a required parameter", code: "invalid_request", status: 400 });
         }
         const parts = token.split(".");
 
         if (parts.length !== 3) {
-            throw new JWTError("Decoding failed: Invalid JWT format. Expected 3 parts (header.payload.signature).", "INVALID_INPUT");
+            throw new JWTError({ message: "The request is missing a required parameter", code: "invalid_request", status: 400 });
         }
         let [header, payload, signature] = parts;
 
@@ -457,6 +451,7 @@ class JWT {
         const verify = Verifier[header.alg];
 
         const invalid_signature = !verify(signature, data, secret);
+
         const now = Math.floor(Date.now() / 1000);
         const invalid_nbf = !!(payload.nbf && now < payload.nbf);
         const invalid_exp = !!(payload.exp && now >= payload.exp);
@@ -464,7 +459,6 @@ class JWT {
         return {
             payload,
             invalid_signature,
-            now,
             invalid_nbf,
             invalid_exp,
         };
@@ -492,56 +486,30 @@ class JWT {
      * @throws {JWTError} If the token is invalid, expired, or signature verification fails.
      */
     static verify(token = "", secret = "") {
-        const { payload, invalid_signature, now, invalid_nbf, invalid_exp } = JWT.decode(token, secret);
+        let payload = null,
+            invalid_signature = true,
+            invalid_nbf = true,
+            invalid_exp = true;
+        try {
+            ({ payload, invalid_signature, invalid_nbf, invalid_exp } = JWT.decode(token, secret));
+        } catch (error) {
+            throw new JWTError({ message: "The access token provided is malformed", code: "invalid_token", status: 401 });
+        }
 
         if (invalid_signature) {
-            throw new JWTError("Decoding failed: Signature verification failed.", "INVALID_SIGNATURE");
+            throw new JWTError({ message: "The access token provided is malformed", code: "invalid_token", status: 401 });
         }
 
         if (invalid_nbf) {
-            throw new JWTError(`Decoding failed: Token is not yet valid (nbf=${payload.nbf}, now=${now}).`, "INVALID_NBF");
+            throw new JWTError({ message: `The access token provided is invalid for other reasons`, code: "invalid_token", status: 401 });
         }
 
         if (invalid_exp) {
-            throw new JWTError(`Decoding failed: Token has expired (exp=${payload.exp}, now=${now}).`, "INVALID_EXP");
+            throw new JWTError({ message: `The access token provided is expired`, code: "invalid_token", status: 401 });
         }
 
         return payload;
     }
 }
 
-
 module.exports = JWT;
-
-// {
-//     const token = JWT.sign(
-//         {
-//             sub: "1234567890",
-//             name: "John Doe",
-//             iat: 1516239022,
-//         },
-//         "your-256-bit-secret",
-//         {
-//             alg: "HS256",
-//             typ: "JWT",
-//         },
-//     );
-//     const verified = JWT.verify(token, "your-256-bit-secret");
-//     console.log(token);
-//     console.log(verified);
-//     console.log(
-//         JWT.encode(
-//             {
-//                 sub: "1234567890",
-//                 name: "John Doe",
-//                 iat: 1516239022,
-//             },
-//             "your-256-bit-secret",
-//             {
-//                 alg: "HS256",
-//                 typ: "JWT",
-//             },
-//         ),
-//     );
-//     console.log(JWT.decode("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c", "your-256-bit-secret"));
-// }
