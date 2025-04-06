@@ -6,9 +6,6 @@ const https = require("https");
 const Router = require("./lib/router.js");
 const app = new Router();
 
-// require("./lib/otp.js");
-// require("./lib/jwt.js");
-
 app.use(Router.compression());
 app.use(Router.cookie());
 app.use(Router.json());
