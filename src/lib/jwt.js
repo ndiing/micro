@@ -196,23 +196,23 @@ class JWT {
 
         header = JSON.parse(header);
         payload = JSON.parse(payload);
-        
+
         if (!Verifier[header.alg](data, secret, signature)) {
             throw new Error("Invalid signature: token has been tampered or secret is incorrect");
         }
-        
+
         if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) {
             throw new Error("Token has expired (exp claim)");
         }
-        
+
         if (payload.nbf && Math.floor(Date.now() / 1000) < payload.nbf) {
             throw new Error("Token is not valid yet (nbf claim)");
         }
-        
+
         if (payload.iat && Math.floor(Date.now() / 1000) < payload.iat) {
             throw new Error("Token issued-at time is in the future (iat claim)");
         }
-        
+
         return payload;
     }
 
