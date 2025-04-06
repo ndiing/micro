@@ -7,19 +7,23 @@ const OTP = require("../src/lib/otp");
     const decoded = Base32.decode(encoded);
     console.log(decoded);
 }
+
 {
     console.log(Buffer.from("foo").toString("base32"));
     console.log(Buffer.from("MZXW6===", "base32").toString());
 }
+
 {
     console.log(OTP.otpauth());
     console.log(OTP.totp({ key: "IRUR545Y5QTEWR6Q", algorithm: "sha1", encoding: "base32" }));
 }
+
 {
     console.log(OTP.randomKey({ algorithm: "sha1" }));
     console.log(OTP.randomKey({ algorithm: "sha256" }));
     console.log(OTP.randomKey({ algorithm: "sha512" }));
 }
+
 {
     console.log(OTP.hotp({ key: "12345678901234567890", counter: 0 }) === "755224");
     console.log(OTP.hotp({ key: "12345678901234567890", counter: 1 }) === "287082");
@@ -32,6 +36,7 @@ const OTP = require("../src/lib/otp");
     console.log(OTP.hotp({ key: "12345678901234567890", counter: 8 }) === "399871");
     console.log(OTP.hotp({ key: "12345678901234567890", counter: 9 }) === "520489");
 }
+
 {
     console.log(OTP.totp({ key: "12345678901234567890", T: 59, algorithm: "sha1" }) === "287082");
     console.log(OTP.totp({ key: "12345678901234567890", T: 1111111109, algorithm: "sha1" }) === "081804");
