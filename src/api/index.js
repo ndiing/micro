@@ -1,8 +1,8 @@
-const Router = require("../lib/router");
+const Router = require("../lib/router.js");
 
-const router = new Router();
+const api = new Router();
 
-router.use("/main", require("./main/index.js"));
-router.use("/auth", require("./auth/index.js"));
+api.use("/main", require("./main/index.js"));
+api.use("/auth", require("./auth/index.js"));
 
-module.exports = router;
+module.exports = api;

@@ -1,0 +1,91 @@
+
+###
+GET http://localhost
+
+
+
+
+
+
+
+
+
+
+
+
+###
+GET http://localhost/api
+
+
+
+
+
+
+
+
+
+
+
+
+###
+POST http://localhost/api/users
+Content-Type: application/json
+
+{
+    "user":"name",
+    "pass":"word"
+}
+
+###
+GET http://localhost/api/users
+
+###
+GET http://localhost/api/users/1
+
+###
+PATCH http://localhost/api/users/1
+Content-Type: application/json
+
+{
+    "user":"name",
+    "pass":"word"
+}
+
+###
+DELETE http://localhost/api/users/1
+
+
+
+
+
+
+
+
+
+
+###
+POST http://localhost/api/blogs
+Content-Type: application/json
+
+{
+    "user":"name",
+    "pass":"word"
+}
+
+###
+GET http://localhost/api/blogs?page=1&limit=2&name_like=buda&name_like=budi
+
+###
+GET http://localhost/api/blogs/1
+
+###
+PATCH http://localhost/api/blogs/1
+Content-Type: application/json
+
+{
+    "user":"name",
+    "pass":"word"
+}
+
+###
+DELETE http://localhost/api/blogs/1
