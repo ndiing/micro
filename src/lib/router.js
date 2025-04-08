@@ -248,9 +248,54 @@ class Router {
     }
 
     /**
+     * @typedef {Object} CustomRequest
+     * @property {IncomingMessage} raw - The original Node.js request object.
+     * @property {string} _protocol - The request protocol.
+     * @property {string} _host - The request host.
+     * @property {string} _base - The request base URL.
+     * @property {URL} _url - Parsed request URL object.
+     * @property {Object.<string, string>} query - Query parameters.
+     * @property {Object.<string, string>} params - Route parameters.
+     */
+
+/**
+ * @callback StatusFunction
+ * @param {number} code - HTTP status code
+ * @returns {CustomResponse}
+ */
+
+/**
+ * @callback SendFunction
+ * @param {string | Buffer} body - Response body
+ * @returns {void}
+ */
+
+/**
+ * @callback JsonFunction
+ * @param {any} data - Data to send as JSON
+ * @returns {void}
+ */
+
+/**
+ * @callback SendFileFunction
+ * @param {string} filePath - Path to the file to send
+ * @returns {void}
+ */
+
+/**
+ * @typedef {Object} CustomResponse
+ * @property {Object} locals - Middleware-local state.
+ * @property {StatusFunction} status - Set response status.
+ * @property {SendFunction} send - Send raw response body.
+ * @property {JsonFunction} json - Send JSON response.
+ * @property {SendFileFunction} sendFile - Send file response.
+ */
+
+    /**
      * Handles incoming HTTP requests and executes relevant middleware.
-     * @param {http.IncomingMessage} req - The request object.
-     * @param {http.ServerResponse} res - The response object.
+     * @param {CustomRequest} req - The request object.
+     * @param {CustomResponse} res - The response object.
+     * @returns {Promise<void>}
      */
     async request(req, res) {
         let end;
@@ -591,7 +636,9 @@ class Router {
             const rule = rules.find((rule) => (rule.method === "*" || rule.method === req.method) && rule.regexp.test(req._url.pathname));
 
             if (rule) {
-                const { timeWindow = 60, requestQuota = 100 } = rule;
+                res.locals.rule = rule;
+
+                const { timeWindow = 60, requestQuota = 100 } = res.locals.rule;
 
                 const now = Date.now();
                 const key = [req.socket.remoteAddress, req.method, req._url.pathname].join();

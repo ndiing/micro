@@ -63,6 +63,23 @@ Extends EventEmitter to handle connection events.</p>
 </dd>
 </dl>
 
+## Typedefs
+
+<dl>
+<dt><a href="#CustomRequest">CustomRequest</a> : <code>Object</code></dt>
+<dd></dd>
+<dt><a href="#StatusFunction">StatusFunction</a> ⇒ <code><a href="#CustomResponse">CustomResponse</a></code></dt>
+<dd></dd>
+<dt><a href="#SendFunction">SendFunction</a> ⇒ <code>void</code></dt>
+<dd></dd>
+<dt><a href="#JsonFunction">JsonFunction</a> ⇒ <code>void</code></dt>
+<dd></dd>
+<dt><a href="#SendFileFunction">SendFileFunction</a> ⇒ <code>void</code></dt>
+<dd></dd>
+<dt><a href="#CustomResponse">CustomResponse</a> : <code>Object</code></dt>
+<dd></dd>
+</dl>
+
 <a name="Base32"></a>
 
 ## Base32
@@ -490,7 +507,7 @@ Router class provides an Express-like routing system for handling HTTP requests.
         * [.post(...args)](#Router+post) ⇒ [<code>Router</code>](#Router)
         * [.patch(...args)](#Router+patch) ⇒ [<code>Router</code>](#Router)
         * [.connect(...args)](#Router+connect) ⇒ [<code>Router</code>](#Router)
-        * [.request(req, res)](#Router+request)
+        * [.request(req, res)](#Router+request) ⇒ <code>Promise.&lt;void&gt;</code>
         * [.listen(...args)](#Router+listen) ⇒ <code>http.Server</code>
     * _static_
         * [.compression()](#Router.compression) ⇒ <code>function</code>
@@ -655,15 +672,15 @@ Registers a CONNECT route.
 
 <a name="Router+request"></a>
 
-### router.request(req, res)
+### router.request(req, res) ⇒ <code>Promise.&lt;void&gt;</code>
 Handles incoming HTTP requests and executes relevant middleware.
 
 **Kind**: instance method of [<code>Router</code>](#Router)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| req | <code>http.IncomingMessage</code> | The request object. |
-| res | <code>http.ServerResponse</code> | The response object. |
+| req | [<code>CustomRequest</code>](#CustomRequest) | The request object. |
+| res | [<code>CustomResponse</code>](#CustomResponse) | The response object. |
 
 <a name="Router+listen"></a>
 
@@ -1116,4 +1133,70 @@ Custom fetch function that supports proxies and cookie management.
 | [init] | <code>Object</code> | <code>{}</code> | Additional fetch configuration options. |
 | [init.headers] | <code>Object</code> |  | Request headers. |
 | [init.store] | <code>Object</code> |  | An optional cookie store object for managing cookies. |
+
+<a name="CustomRequest"></a>
+
+## CustomRequest : <code>Object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| raw | <code>IncomingMessage</code> | The original Node.js request object. |
+| _protocol | <code>string</code> | The request protocol. |
+| _host | <code>string</code> | The request host. |
+| _base | <code>string</code> | The request base URL. |
+| _url | <code>URL</code> | Parsed request URL object. |
+| query | <code>Object.&lt;string, string&gt;</code> | Query parameters. |
+| params | <code>Object.&lt;string, string&gt;</code> | Route parameters. |
+
+<a name="StatusFunction"></a>
+
+## StatusFunction ⇒ [<code>CustomResponse</code>](#CustomResponse)
+**Kind**: global typedef  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| code | <code>number</code> | HTTP status code |
+
+<a name="SendFunction"></a>
+
+## SendFunction ⇒ <code>void</code>
+**Kind**: global typedef  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| body | <code>string</code> \| <code>Buffer</code> | Response body |
+
+<a name="JsonFunction"></a>
+
+## JsonFunction ⇒ <code>void</code>
+**Kind**: global typedef  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>any</code> | Data to send as JSON |
+
+<a name="SendFileFunction"></a>
+
+## SendFileFunction ⇒ <code>void</code>
+**Kind**: global typedef  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| filePath | <code>string</code> | Path to the file to send |
+
+<a name="CustomResponse"></a>
+
+## CustomResponse : <code>Object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| locals | <code>Object</code> | Middleware-local state. |
+| status | [<code>StatusFunction</code>](#StatusFunction) | Set response status. |
+| send | [<code>SendFunction</code>](#SendFunction) | Send raw response body. |
+| json | [<code>JsonFunction</code>](#JsonFunction) | Send JSON response. |
+| sendFile | [<code>SendFileFunction</code>](#SendFileFunction) | Send file response. |
 

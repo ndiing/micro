@@ -32,7 +32,8 @@ class Middleware {
                     res.locals.payload = payload;
                 } catch (error) {
                     res.status(401);
-                    return next(new JWTError("invalid_token", "The access token provided is malformed"));
+                    // return next(new JWTError("invalid_token", "The access token provided is malformed"));
+                    return next(error);
                 }
 
                 const permission = items.find((item) => item.role === res.locals.payload.role && item.method === req.method);
