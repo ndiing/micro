@@ -1,5 +1,8 @@
 const Router = require("../src/lib/router");
 
+const fs = require("fs");
+const path = require("path");
+
 {
     const users = new Router();
     users.use((req, res, next) => {
@@ -9,11 +12,11 @@ const Router = require("../src/lib/router");
         res.json({ message: "post users", body: req.body });
     });
     users.get("/", (req, res, next) => {
-        res.cookie("name1", "value1");
-        res.cookie("name2", "value2");
-        res.cookie("name3", "value3");
-        res.cookie("name4", "value4");
-        res.cookie("name5", "value5");
+        // res.cookie("name1", "value1");
+        // res.cookie("name2", "value2");
+        // res.cookie("name3", "value3");
+        // res.cookie("name4", "value4");
+        // res.cookie("name5", "value5");
         res.json({ message: "get all users", query: req.query });
     });
     users.get("/:id", (req, res, next) => {
@@ -36,7 +39,7 @@ const Router = require("../src/lib/router");
             res.json({ message: "post blogs", body: req.body });
         })
         .get("/", (req, res, next) => {
-            res.cookie("name1", "value1").cookie("name2", "value2").cookie("name3", "value3").cookie("name4", "value4").cookie("name5", "value5").json({ message: "get all blogs", query: req.query });
+            // res.cookie("name1", "value1").cookie("name2", "value2").cookie("name3", "value3").cookie("name4", "value4").cookie("name5", "value5").json({ message: "get all blogs", query: req.query });
         })
         .get("/:id", (req, res, next) => {
             throw new Error("Test Error");
@@ -64,6 +67,7 @@ const Router = require("../src/lib/router");
     app.use(Router.cors());
     app.use(Router.security());
     app.use(Router.rateLimit());
+    app.use(Router.static(path.join(process.cwd(), "dist")));
     app.use("/api", api);
     app.use(Router.missing());
     app.use(Router.catchAll());
@@ -72,3 +76,4 @@ const Router = require("../src/lib/router");
         console.log(server.address());
     });
 }
+

@@ -2,6 +2,101 @@ const http = require("http");
 const { Readable } = require("stream");
 const zlib = require("zlib");
 const CacheMap = require("./cache-map.js");
+const fs = require("fs");
+const path = require("path");
+
+const MIME_TYPES = {
+    // Audio
+    ".aac": "audio/aac",
+    ".mid": "audio/midi",
+    ".midi": "audio/midi",
+    ".mp3": "audio/mpeg",
+    ".oga": "audio/ogg",
+    ".opus": "audio/ogg",
+    ".wav": "audio/wav",
+    ".weba": "audio/webm",
+
+    // Video
+    ".avi": "video/x-msvideo",
+    ".mp4": "video/mp4",
+    ".mpeg": "video/mpeg",
+    ".ogv": "video/ogg",
+    ".ts": "video/mp2t",
+    ".webm": "video/webm",
+    ".3gp": "video/3gpp",
+    ".3g2": "video/3gpp2",
+
+    // Image
+    ".apng": "image/apng",
+    ".avif": "image/avif",
+    ".bmp": "image/bmp",
+    ".gif": "image/gif",
+    ".ico": "image/vnd.microsoft.icon",
+    ".jpeg": "image/jpeg",
+    ".jpg": "image/jpeg",
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".tif": "image/tiff",
+    ".tiff": "image/tiff",
+    ".webp": "image/webp",
+
+    // Font
+    ".otf": "font/otf",
+    ".ttf": "font/ttf",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
+
+    // Text
+    ".css": "text/css",
+    ".csv": "text/csv",
+    ".htm": "text/html",
+    ".html": "text/html",
+    ".ics": "text/calendar",
+    ".txt": "text/plain",
+
+    // Application
+    ".abw": "application/x-abiword",
+    ".arc": "application/x-freearc",
+    ".azw": "application/vnd.amazon.ebook",
+    ".bin": "application/octet-stream",
+    ".bz": "application/x-bzip",
+    ".bz2": "application/x-bzip2",
+    ".cda": "application/x-cdf",
+    ".csh": "application/x-csh",
+    ".doc": "application/msword",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".eot": "application/vnd.ms-fontobject",
+    ".epub": "application/epub+zip",
+    ".gz": "application/gzip",
+    ".jar": "application/java-archive",
+    ".js": "application/javascript",
+    ".json": "application/json",
+    ".jsonld": "application/ld+json",
+    ".mjs": "application/javascript",
+    ".mpkg": "application/vnd.apple.installer+xml",
+    ".odp": "application/vnd.oasis.opendocument.presentation",
+    ".ods": "application/vnd.oasis.opendocument.spreadsheet",
+    ".odt": "application/vnd.oasis.opendocument.text",
+    ".ogx": "application/ogg",
+    ".pdf": "application/pdf",
+    ".php": "application/x-httpd-php",
+    ".ppt": "application/vnd.ms-powerpoint",
+    ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ".rar": "application/vnd.rar",
+    ".rtf": "application/rtf",
+    ".sh": "application/x-sh",
+    ".tar": "application/x-tar",
+    ".xhtml": "application/xhtml+xml",
+    ".xls": "application/vnd.ms-excel",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".xml": "application/xml",
+    ".xul": "application/vnd.mozilla.xul+xml",
+    ".zip": "application/zip",
+    ".7z": "application/x-7z-compressed",
+
+    // Visio
+    ".vsd": "application/vnd.visio",
+};
 
 /**
  * Router class provides an Express-like routing system for handling HTTP requests.
@@ -23,7 +118,7 @@ class Router {
             requestTimeout: 60 * 1000,
             ...config,
         };
-        this.listener = this.listener.bind(this);
+        this.request = this.request.bind(this);
     }
 
     /**
@@ -162,13 +257,17 @@ class Router {
      * @param {http.IncomingMessage} req - The request object.
      * @param {http.ServerResponse} res - The response object.
      */
-    async listener(req, res) {
+    async request(req, res) {
         let end;
         let err;
 
+        /***/
         req._protocol = req.socket.encrypted ? "https:" : "http:";
+        /***/
         req._host = req.headers.host;
+        /***/
         req._base = req._protocol + "//" + req._host;
+        /***/
         req._url = new URL(req.url, req._base);
 
         const query = {};
@@ -183,29 +282,52 @@ class Router {
                 query[key] = value;
             }
         }
+        /***/
         req.query = query;
 
+        /***/
         res.locals = {};
 
+        /***/
         res.status = (code) => {
             res.statusCode = code;
             return res;
         };
 
+        /***/
         res.send = (body) => {
-            if (!(body instanceof Readable)) {
-                const readable = new Readable();
-                readable.push(body);
-                readable.push(null);
-                body = readable;
+            try {
+                if (!(body instanceof Readable)) {
+                    const readable = new Readable();
+                    readable.push(body);
+                    readable.push(null);
+                    body = readable;
+                }
+                body.pipe(res);
+                end = true;
+            } catch (error) {
+                err=error
             }
-            body.pipe(res);
-            end = true;
         };
 
+        /***/
         res.json = (body) => {
-            res.setHeader("Content-Type", "application/json");
-            res.send(JSON.stringify(body));
+            try {
+                res.setHeader("Content-Type", "application/json");
+                res.send(JSON.stringify(body));
+            } catch (error) {
+                err=error
+            }
+        };
+
+        /***/
+        res.sendFile = (pathname) => {
+            try {
+                res.setHeader("Content-Type", MIME_TYPES[path.extname(pathname)]);
+                res.send(fs.createReadStream(pathname));
+            } catch (error) {
+                err=error
+            }
         };
 
         for (const route of this.routes) {
@@ -214,6 +336,7 @@ class Router {
                 continue;
             }
 
+            /***/
             req.params = { ...matches.groups };
 
             for (const middleware of route.middlewares) {
@@ -283,7 +406,7 @@ class Router {
      */
     listen(...args) {
         const server = http.createServer();
-        server.on("request", this.listener);
+        server.on("request", this.request);
         server.listen(...args);
         return server;
     }
@@ -490,6 +613,24 @@ class Router {
             }
 
             next();
+        };
+    }
+
+    /**
+     * Middleware to serve static files from a specified directory.
+     * Automatically serves `index.html` if the request targets `/`.
+     * @param {string} dirname - The directory containing static files.
+     * @returns {Function} Express-style middleware function.
+     */
+    static static(dirname) {
+        return (req, res, next) => {
+            const pathname = path.join(dirname,req._url.pathname === "/" ? "/index.html" : req._url.pathname);
+
+            if (fs.existsSync(pathname)) {
+                res.sendFile(pathname);
+            } else {
+                next();
+            }
         };
     }
 
