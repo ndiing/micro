@@ -300,13 +300,9 @@ class Router {
         let end;
         let err;
 
-        /***/
         req._protocol = req.socket.encrypted ? "https:" : "http:";
-        /***/
         req._host = req.headers.host;
-        /***/
         req._base = req._protocol + "//" + req._host;
-        /***/
         req._url = new URL(req.url, req._base);
 
         const query = {};
@@ -321,19 +317,15 @@ class Router {
                 query[key] = value;
             }
         }
-        /***/
         req.query = query;
 
-        /***/
         res.locals = {};
 
-        /***/
         res.status = (code) => {
             res.statusCode = code;
             return res;
         };
 
-        /***/
         res.send = (body) => {
             try {
                 if (!(body instanceof Readable)) {
@@ -349,7 +341,6 @@ class Router {
             }
         };
 
-        /***/
         res.json = (body) => {
             try {
                 res.setHeader("Content-Type", "application/json");
@@ -359,7 +350,6 @@ class Router {
             }
         };
 
-        /***/
         res.sendFile = (pathname) => {
             try {
                 res.setHeader("Content-Type", MIME_TYPES[path.extname(pathname)]);
@@ -375,7 +365,6 @@ class Router {
                 continue;
             }
 
-            /***/
             req.params = { ...matches.groups };
 
             for (const middleware of route.middlewares) {
