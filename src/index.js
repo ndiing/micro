@@ -3,11 +3,10 @@ require("./lib/env.js");
 
 const http = require("http");
 const https = require("https");
+const path = require("path");
 const Router = require("./lib/router.js");
 const { authorization } = require("./api/auth/middleware.js");
 const { permissions } = require("./api/auth/model.js");
-const path = require("path");
-
 const WebSocket = require("./lib/web-socket.js");
 
 const app = new Router();
