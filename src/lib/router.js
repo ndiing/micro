@@ -4,6 +4,7 @@ const zlib = require("zlib");
 const CacheMap = require("./cache-map.js");
 const fs = require("fs");
 const path = require("path");
+const { pathToRegexp } = require("./util.js");
 
 const MIME_TYPES = {
     // Audio
@@ -141,13 +142,7 @@ class Router {
             return;
         }
 
-        const pattern =
-            "^" +
-            path
-                .replace(/:(\w+)/g, "(?<$1>[^/]+)")
-                .replace(/\*/, "(?:.*)")
-                .replace(/\/?$/, "(?:/?$)");
-        const regexp = new RegExp(pattern, "i");
+        const regexp = pathToRegexp(path);
 
         this.routes.push({ method, path, middlewares, regexp });
     }

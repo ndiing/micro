@@ -1,17 +1,11 @@
 const http = require("http");
 const JWT = require("../../lib/jwt.js");
+const { pathToRegexp } = require("../../lib/util.js");
 
 class Middleware {
     static authorization(permissions) {
         permissions = permissions.map((item) => {
-            const pattern =
-                "^" +
-                item.path
-                    .replace(/:(\w+)/g, "(?<$1>[^/]+)")
-                    .replace(/\*/, "(?:.*)")
-                    .replace(/\/?$/, "(?:/?$)");
-            const regexp = new RegExp(pattern, "i");
-            item.regexp = regexp;
+            item.regexp = pathToRegexp(item.path);
 
             return item;
         });
@@ -23,29 +17,27 @@ class Middleware {
                 const [scheme, credentials] = (req.headers.authorization || "").split(" ");
 
                 try {
-                    const payload = JWT.verify(credentials, process.env.TOKEN_SECRET);
+                    const payload = JWT.decode(credentials);
+                    res.locals.decoded = payload;
+                } catch (error) {
+                    res.status(400);
+                    return next(http.STATUS_CODES[400]);
+                }
+
+                try {
+                    const secret = res.locals.decoded.type === "access_token" ? res.locals.SECRET_ACCESS : res.locals.SECRET_REFRESH;
+                    const payload = JWT.verify(credentials, secret);
                     res.locals.payload = payload;
                 } catch (error) {
-                    res.status(401);
-                    return next(error);
-                }
-
-                const permission = items.find((item) => item.role === res.locals.payload.role);
-
-                if (!permission) {
-                    res.status(403);
-                    return next(new Error(http.STATUS_CODES[403]));
-                }
-
-                if (permission.type !== res.locals.payload.type) {
                     res.status(401);
                     return next(new Error(http.STATUS_CODES[401]));
                 }
 
-                if (permission.method !== req.method) {
-                    res.status(405);
-                    res.setHeader("Allow", [...new Set(items.map((item) => item.method))].join(", "));
-                    return next(new Error(http.STATUS_CODES[405]));
+                const permission = items.find((item) => item.role === res.locals.payload.role && item.method === req.method);
+
+                if (!permission) {
+                    res.status(403);
+                    return next(new Error(http.STATUS_CODES[403]));
                 }
 
                 res.locals.permission = permission;
