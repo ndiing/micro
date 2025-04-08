@@ -2,6 +2,14 @@ const { setGlobalDispatcher, ProxyAgent } = require("undici");
 
 const globalFetch = global.fetch;
 
+/**
+ * Custom fetch function that supports proxies and cookie management.
+ * @param {string} [input=""] - The request URL or resource.
+ * @param {Object} [init={}] - Additional fetch configuration options.
+ * @param {Object} [init.headers] - Request headers.
+ * @param {Object} [init.store] - An optional cookie store object for managing cookies.
+ * @returns {Promise<Response>} A promise that resolves with the fetch response.
+ */
 const fetch = async (input = "", init = {}) => {
     if (process.env.HTTP_PROXY) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";

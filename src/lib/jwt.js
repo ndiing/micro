@@ -168,7 +168,18 @@ class Verifier {
     }
 }
 
+/**
+ * JWT class responsible for encoding, decoding, signing, and verifying JSON Web Tokens (JWT).
+ */
 class JWT {
+    /**
+     * Signs a payload into a JSON Web Token (JWT) using the specified algorithm and secret.
+     * @param {Object} [header={}] - The JWT header containing metadata like algorithm.
+     * @param {Object} [payload={}] - The payload containing claims.
+     * @param {string} [secret=""] - The secret key used to sign the token.
+     * @returns {string} The signed JWT.
+     * @throws {Error} If the algorithm is missing or invalid.
+     */
     static sign(header = {}, payload = {}, secret = "") {
         const alg = header.alg;
 
@@ -186,6 +197,13 @@ class JWT {
         return token;
     }
 
+    /**
+     * Verifies a JSON Web Token (JWT) and checks its validity.
+     * @param {string} [token=""] - The JWT to verify.
+     * @param {string} [secret=""] - The secret key used for verification.
+     * @returns {Object} The decoded payload if the token is valid.
+     * @throws {Error} If the token is missing, malformed, expired, or signature verification fails.
+     */
     static verify(token = "", secret = "") {
         if (!token) {
             throw new Error("Token is required");
@@ -228,6 +246,11 @@ class JWT {
         return payload;
     }
 
+    /**
+     * Decodes the header and payload of a JSON Web Token (JWT) without verifying the signature.
+     * @param {string} [token=""] - The JWT to decode.
+     * @returns {Object} An object containing the decoded header and payload.
+     */
     static decode(token = "") {
         let [header, payload] = token.split(".");
 
