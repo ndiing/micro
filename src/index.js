@@ -39,9 +39,6 @@ app.use(Router.catchAll());
 const httpServer = http.createServer();
 const httpsServer = https.createServer({});
 
-httpServer.on("request", app.request);
-httpsServer.on("request", app.request);
-
 const socket = new WebSocket();
 
 socket.on("connection", (client) => {
@@ -52,6 +49,9 @@ socket.on("connection", (client) => {
     client.on("close", console.log);
     client.on("error", console.log);
 });
+
+httpServer.on("request", app.request);
+httpsServer.on("request", app.request);
 
 httpServer.on("upgrade", socket.upgrade);
 httpsServer.on("upgrade", socket.upgrade);
