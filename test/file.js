@@ -1,5 +1,5 @@
-const { read, write } = require("../src/lib/file");
-const Store = require("../src/lib/store");
+const { read, write } = require("../src/lib/file.js");
+const Store = require("../src/lib/store.js");
 
 {
     const data = read("./data/session.json");

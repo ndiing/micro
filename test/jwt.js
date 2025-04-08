@@ -1,4 +1,4 @@
-const JWT = require("../src/lib/jwt");
+const JWT = require("../src/lib/jwt.js");
 
 {
     const header = {

@@ -1,5 +1,5 @@
-const Base32 = require("../src/lib/base32");
-const OTP = require("../src/lib/otp");
+const Base32 = require("../src/lib/base32.js");
+const OTP = require("../src/lib/otp.js");
 
 {
     const encoded = Base32.encode("foo");

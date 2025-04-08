@@ -1,7 +1,7 @@
-// require('../src/lib/env')
+// require('../src/lib/env.js')
 
-const fetch = require("../src/lib/fetch");
-const Store = require("../src/lib/store");
+const fetch = require("../src/lib/fetch.js");
+const Store = require("../src/lib/store.js");
 
 {
     const store = Store.get("./data/session.json.gz");

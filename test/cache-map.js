@@ -1,4 +1,4 @@
-const CacheMap = require("../src/lib/cache-map");
+const CacheMap = require("../src/lib/cache-map.js");
 
 {
     const cache = new CacheMap();

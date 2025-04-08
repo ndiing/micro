@@ -8,6 +8,8 @@ const Router = require("./lib/router.js");
 const { authorization } = require("./api/auth/middleware.js");
 const WebSocket = require("./lib/web-socket.js");
 
+require("./lib/validation.js");
+
 const app = new Router();
 
 app.use(Router.compression());

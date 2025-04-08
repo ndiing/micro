@@ -1,4 +1,4 @@
-const Router = require("../src/lib/router");
+const Router = require("../src/lib/router.js");
 
 const fs = require("fs");
 const path = require("path");

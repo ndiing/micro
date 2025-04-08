@@ -1,4 +1,4 @@
-const CookieStore = require("../src/lib/cookie-store");
+const CookieStore = require("../src/lib/cookie-store.js");
 
 {
     const cookieStore = new CookieStore();
