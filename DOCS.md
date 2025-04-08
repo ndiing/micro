@@ -66,8 +66,6 @@ Extends EventEmitter to handle connection events.</p>
 ## Typedefs
 
 <dl>
-<dt><a href="#CustomRequest">CustomRequest</a> : <code>Object</code></dt>
-<dd></dd>
 <dt><a href="#StatusFunction">StatusFunction</a> ⇒ <code><a href="#CustomResponse">CustomResponse</a></code></dt>
 <dd></dd>
 <dt><a href="#SendFunction">SendFunction</a> ⇒ <code>void</code></dt>
@@ -75,6 +73,8 @@ Extends EventEmitter to handle connection events.</p>
 <dt><a href="#JsonFunction">JsonFunction</a> ⇒ <code>void</code></dt>
 <dd></dd>
 <dt><a href="#SendFileFunction">SendFileFunction</a> ⇒ <code>void</code></dt>
+<dd></dd>
+<dt><a href="#CustomRequest">CustomRequest</a> : <code>Object</code></dt>
 <dd></dd>
 <dt><a href="#CustomResponse">CustomResponse</a> : <code>Object</code></dt>
 <dd></dd>
@@ -679,8 +679,8 @@ Handles incoming HTTP requests and executes relevant middleware.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| req | [<code>CustomRequest</code>](#CustomRequest) | The request object. |
-| res | [<code>CustomResponse</code>](#CustomResponse) | The response object. |
+| req | [<code>CustomRequest</code>](#CustomRequest) | Custom wrapped request. |
+| res | [<code>CustomResponse</code>](#CustomResponse) | Custom wrapped response. |
 
 <a name="Router+listen"></a>
 
@@ -1134,22 +1134,6 @@ Custom fetch function that supports proxies and cookie management.
 | [init.headers] | <code>Object</code> |  | Request headers. |
 | [init.store] | <code>Object</code> |  | An optional cookie store object for managing cookies. |
 
-<a name="CustomRequest"></a>
-
-## CustomRequest : <code>Object</code>
-**Kind**: global typedef  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| raw | <code>IncomingMessage</code> | The original Node.js request object. |
-| _protocol | <code>string</code> | The request protocol. |
-| _host | <code>string</code> | The request host. |
-| _base | <code>string</code> | The request base URL. |
-| _url | <code>URL</code> | Parsed request URL object. |
-| query | <code>Object.&lt;string, string&gt;</code> | Query parameters. |
-| params | <code>Object.&lt;string, string&gt;</code> | Route parameters. |
-
 <a name="StatusFunction"></a>
 
 ## StatusFunction ⇒ [<code>CustomResponse</code>](#CustomResponse)
@@ -1157,7 +1141,7 @@ Custom fetch function that supports proxies and cookie management.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| code | <code>number</code> | HTTP status code |
+| code | <code>number</code> | HTTP status code. |
 
 <a name="SendFunction"></a>
 
@@ -1166,7 +1150,7 @@ Custom fetch function that supports proxies and cookie management.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| body | <code>string</code> \| <code>Buffer</code> | Response body |
+| body | <code>string</code> \| <code>Buffer</code> | The response body. |
 
 <a name="JsonFunction"></a>
 
@@ -1175,7 +1159,7 @@ Custom fetch function that supports proxies and cookie management.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| data | <code>any</code> | Data to send as JSON |
+| data | <code>any</code> | The JSON data to send. |
 
 <a name="SendFileFunction"></a>
 
@@ -1184,7 +1168,23 @@ Custom fetch function that supports proxies and cookie management.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| filePath | <code>string</code> | Path to the file to send |
+| filePath | <code>string</code> | The file path to send. |
+
+<a name="CustomRequest"></a>
+
+## CustomRequest : <code>Object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| raw | <code>any</code> | The original request object. |
+| _protocol | <code>string</code> | The request protocol (http or https). |
+| _host | <code>string</code> | The request host. |
+| _base | <code>string</code> | The request base URL. |
+| _url | <code>URL</code> | Parsed request URL object. |
+| query | <code>Object.&lt;string, string&gt;</code> | Parsed query parameters. |
+| params | <code>Object.&lt;string, string&gt;</code> | Route parameters. |
 
 <a name="CustomResponse"></a>
 
@@ -1194,7 +1194,7 @@ Custom fetch function that supports proxies and cookie management.
 
 | Name | Type | Description |
 | --- | --- | --- |
-| locals | <code>Object</code> | Middleware-local state. |
+| locals | <code>Object</code> | Object for storing local variables across middlewares. |
 | status | [<code>StatusFunction</code>](#StatusFunction) | Set response status. |
 | send | [<code>SendFunction</code>](#SendFunction) | Send raw response body. |
 | json | [<code>JsonFunction</code>](#JsonFunction) | Send JSON response. |

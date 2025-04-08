@@ -248,43 +248,42 @@ class Router {
     }
 
     /**
-     * @typedef {Object} CustomRequest
-     * @property {IncomingMessage} raw - The original Node.js request object.
-     * @property {string} _protocol - The request protocol.
-     * @property {string} _host - The request host.
-     * @property {string} _base - The request base URL.
-     * @property {URL} _url - Parsed request URL object.
-     * @property {Object.<string, string>} query - Query parameters.
-     * @property {Object.<string, string>} params - Route parameters.
-     */
-
-    /**
      * @callback StatusFunction
-     * @param {number} code - HTTP status code
+     * @param {number} code - HTTP status code.
      * @returns {CustomResponse}
      */
 
     /**
      * @callback SendFunction
-     * @param {string | Buffer} body - Response body
+     * @param {string|Buffer} body - The response body.
      * @returns {void}
      */
 
     /**
      * @callback JsonFunction
-     * @param {any} data - Data to send as JSON
+     * @param {any} data - The JSON data to send.
      * @returns {void}
      */
 
     /**
      * @callback SendFileFunction
-     * @param {string} filePath - Path to the file to send
+     * @param {string} filePath - The file path to send.
      * @returns {void}
+     */
+    /**
+     * @typedef {Object} CustomRequest
+     * @property {any} raw - The original request object.
+     * @property {string} _protocol - The request protocol (http or https).
+     * @property {string} _host - The request host.
+     * @property {string} _base - The request base URL.
+     * @property {URL} _url - Parsed request URL object.
+     * @property {Object.<string, string>} query - Parsed query parameters.
+     * @property {Object.<string, string>} params - Route parameters.
      */
 
     /**
      * @typedef {Object} CustomResponse
-     * @property {Object} locals - Middleware-local state.
+     * @property {Object} locals - Object for storing local variables across middlewares.
      * @property {StatusFunction} status - Set response status.
      * @property {SendFunction} send - Send raw response body.
      * @property {JsonFunction} json - Send JSON response.
@@ -293,8 +292,8 @@ class Router {
 
     /**
      * Handles incoming HTTP requests and executes relevant middleware.
-     * @param {CustomRequest} req - The request object.
-     * @param {CustomResponse} res - The response object.
+     * @param {CustomRequest} req - Custom wrapped request.
+     * @param {CustomResponse} res - Custom wrapped response.
      * @returns {Promise<void>}
      */
     async request(req, res) {
