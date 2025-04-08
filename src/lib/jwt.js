@@ -169,7 +169,7 @@ class Verifier {
 }
 
 class JWT {
-    static sign(header, payload, secret) {
+    static sign(header={}, payload={}, secret='') {
         const alg = header.alg;
 
         header = JSON.stringify(header);
@@ -186,37 +186,50 @@ class JWT {
         return token;
     }
 
-    static verify(token, secret) {
-        let [header, payload, signature] = token.split(".");
-
+    static verify(token='', secret='') {
+        if (!token) {
+            throw new Error("Token is required");
+        }
+    
+        let array = token.split(".");
+    
+        if (array.length !== 3) {
+            throw new Error("Malformed token: expected 3 parts (header, payload, signature)");
+        }
+    
+        let [header, payload, signature] = array;
+    
         let data = [header, payload].join(".");
-
+    
         header = Buffer.from(header, "base64url");
         payload = Buffer.from(payload, "base64url");
-
+    
         header = JSON.parse(header);
         payload = JSON.parse(payload);
-
+    
         if (!Verifier[header.alg](data, secret, signature)) {
-            throw new Error("Invalid signature: token has been tampered or secret is incorrect");
+            throw new Error("Signature verification failed: token may be tampered or secret is incorrect");
         }
-
-        if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) {
-            throw new Error("Token has expired (exp claim)");
+    
+        const now = Math.floor(Date.now() / 1000);
+    
+        if (payload.exp && now > payload.exp) {
+            throw new Error("Token has expired (exp claim has passed)");
         }
-
-        if (payload.nbf && Math.floor(Date.now() / 1000) < payload.nbf) {
-            throw new Error("Token is not valid yet (nbf claim)");
+    
+        if (payload.nbf && now < payload.nbf) {
+            throw new Error("Token is not active yet (nbf claim is in the future)");
         }
-
-        if (payload.iat && Math.floor(Date.now() / 1000) < payload.iat) {
-            throw new Error("Token issued-at time is in the future (iat claim)");
+    
+        if (payload.iat && now < payload.iat) {
+            throw new Error("Invalid token: issued-at time (iat) is in the future");
         }
-
+    
         return payload;
     }
+    
 
-    static decode(token) {
+    static decode(token='') {
         let [header, payload] = token.split(".");
 
         header = Buffer.from(header, "base64url");

@@ -1,3 +1,5 @@
+
+
 // authentication
 class Controller {
     static request(req, res, next) {

@@ -1,4 +1,5 @@
 const http = require("http");
+const JWT = require("../../lib/jwt.js");
 
 class Middleware {
     static authorization(permissions) {
@@ -19,9 +20,14 @@ class Middleware {
             const items = permissions.filter((item) => item.regexp.test(req._url.pathname));
 
             if (items.length) {
-                if (!res.locals.payload) {
+                const [scheme, credentials] = (req.headers.authorization || "").split(" ");
+
+                try {
+                    const payload = JWT.verify(credentials, process.env.SECRET);
+                    res.locals.payload = payload;
+                } catch (error) {
                     res.status(401);
-                    return next(new Error(http.STATUS_CODES[401]));
+                    return next(error);
                 }
 
                 const permission = items.find((item) => item.role === res.locals.payload.role);

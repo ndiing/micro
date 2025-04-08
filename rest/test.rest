@@ -41,12 +41,14 @@ Content-Type: application/json
 
 ###
 POST http://localhost/api/auth/refresh
+Authorization: Bearer token
 Content-Type: application/json
 
 {}
 
 ###
 POST http://localhost/api/auth/revoke
+Authorization: Bearer token
 Content-Type: application/json
 
 {}
