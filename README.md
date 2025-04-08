@@ -1,106 +1,138 @@
 # Custom HTTP Framework for Fintech
 
-A modular, lightweight, and flexible HTTP framework built from scratch in Node.js. Designed specifically for fintech and enterprise-grade API development, it includes essential features like routing, middleware, security, authentication, rate limiting, and validation.
+A modular, lightweight, and flexible HTTP framework built from scratch in Node.js. Designed specifically for fintech and enterprise-grade API development, this framework includes essential features such as routing, middleware, security, authentication, rate limiting, validation, and WebSocket support.
 
 ---
 
-## 📦 Features Overview
+## Feature Overview
 
-### 🧩 Core
-- **Custom HTTP Router**
-  - Supports `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `HEAD`
-  - Dynamic params (`/user/:id`)
-  - Wildcard routes (`/static/*`)
-  - Nested routing and modular router structure
-  - Middleware chaining (with `async/await` and error handling)
+### Core
+- Custom-built HTTP router
+  - Supports all HTTP methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+  - Dynamic route parameters (e.g., `/user/:id`)
+  - Wildcard routing (e.g., `/static/*`)
+  - Nested routing and modular structure
+  - Middleware chaining with async/await and error handling
+  - Timeout detection for middleware that doesn't call `next()`
 
-### 🛠 Built-in Middleware
-- `json` – JSON body parser
-- `cookie` – Cookie parser and setter
-- `cors` – CORS headers
-- `security` – Secure HTTP headers (XSS, CSP, etc.)
-- `compression` – `gzip`, `deflate`, and `br` support
-- `static` – Serve static files from a directory
-- `missing` – 404 handler
-- `catchAll` – General error handler
-- `rateLimit` – Rule-based rate limiter
-- `validation` – Schema-based input validator
+### Built-in Middleware
+- `json`: Parses JSON request bodies
+- `cookie`: Parses and sets HTTP cookies
+- `cors`: Adds CORS headers
+- `security`: Adds secure HTTP headers (e.g., XSS protection, CSP)
+- `compression`: Supports gzip, deflate, and brotli
+- `static`: Serves static files
+- `missing`: Handles 404 errors
+- `catchAll`: General error handler
+- `timeout`: Detects stuck middleware with timeout and force error handling
 
-### 🔐 Auth & Security
-- **OTP Module** (passwordless auth)
-  - Supports TOTP and HOTP (RFC 6238 & RFC 4226)
-  - Base32 encoder/decoder, QR code generation, OTP URI
-- **JWT Class**
-  - Support for HS256, RS256, ES256, PS256, and more
-  - Manual `crypto` + `base64url` implementation
-- **Authorization Middleware**
-  - Role/type/method-based permission system
-  - Integrated into modular router (`controller.js`, `model.js`)
+### Authentication and Security
+- OTP Module (Passwordless Authentication)
+  - Supports TOTP and HOTP (based on RFC 6238 and RFC 4226)
+  - Includes Base32 encoder/decoder
+  - Supports OTP URI and QR code generation
+- JWT Module
+  - Supports HS256, RS256, ES256, PS256, and more
+  - Uses built-in crypto and base64url encoding
+- Authorization Middleware
+  - Permission system based on role, token type, method, and path
+  - Integrated in modular router structure (controller.js, model.js)
 
-### ⚡ Rate Limiter
-- Configurable rules using array of `{ method, path, timeWindow, requestQuota }`
-- Path matching via `path-to-regexp`
-- Wildcard support: `method: "*"`, `path: "*"`
-- Works seamlessly with auth endpoints (e.g., OTP, refresh, revoke)
+### Rate Limiting
+- Basic Mode
+  - Limits based on IP, method, and path using in-memory cache
+- Advanced Mode
+  - Accepts array of configuration rules: `{ method, path, timeWindow, requestQuota }`
+  - Uses path-to-regexp for pattern matching
+  - Supports wildcard: `*` for method and path
 
-### 🌐 Networking
-- **Custom Fetch Module**
-  - Wrapper for `undici.fetch`
-  - Auto-proxy support using `HTTP_PROXY`
-  - Cookie store per session/request
-  - Plan for optional caching layer
+### HTTP Client
+- Custom Fetch Wrapper
+  - Based on `undici.fetch`
+  - Supports HTTP proxy via `HTTP_PROXY` environment variable
+  - Includes session-based cookie store
+  - Prepared for optional caching layer
 
-### 📡 WebSocket
-- Manual upgrade handling (`http`, `crypto`, no external deps)
-- Event-based: `connection`, `message`, `close`, `error`
-- Support for binary/text frames
-- Manages connected clients and message broadcast
+### WebSocket Support
+- Manual upgrade handling without external dependencies
+- Event-based interface for connection, message, close, and error
+- Supports both text and binary frames
+- Includes client management and broadcasting support
 
-### 🧠 Utilities
-- **CacheMap Class**
-  - Extends native `Map`
-  - Memory-limited in-memory store (planned)
-  - Used by rate limiter and temporary caching
-
-### ✅ Validation Module
-- Schema-based validation for request data
-- Supports body, query, and params
-- Custom rules, nested objects/arrays, optional fields
-- Middleware-compatible for route-specific validation
+### Utility Libraries (`src/lib/*.js`)
+- `base32.js`: Encoding and decoding in Base32 (used in OTP)
+- `cache-map.js`: Map with optional memory limit, used for caching
+- `cookie-store.js`: Cookie store class used by fetch wrapper
+- `crash.js`: Global crash handler for process errors
+- `env.js`: Loads `.env` files into `process.env`
+- `fetch.js`: Custom fetch wrapper using `undici`
+- `file.js`: Utility functions for file operations
+- `jwt.js`: Implementation of JSON Web Tokens
+- `otp.js`: One-time password generation and validation
+- `router.js`: HTTP routing system with middleware support
+- `store.js`: In-memory key-value store abstraction
+- `timeout.js`: Middleware to detect and handle stalled requests
+- `util.js`: Common utility functions
+- `validation.js`: Schema-based validation engine
+- `web-socket.js`: WebSocket server and client handler
 
 ---
 
-## 📁 Project Structure
+## Project Structure
+
 ```
-data/session.json
-
-dist/index.html
-dist/index.js
-dist/index.css
-
-src/index.js
-
-src/lib/**/*.js
-src/test/**/*.js
-
-src/api/index.js
-
-src/api/main/index.js
-src/api/main/controller.js
-src/api/main/model.js
-
-src/api/auth/index.js
-src/api/auth/controller.js
-src/api/auth/model.js
-
-src/api/other/index.js
-src/api/other/controller.js
-src/api/other/model.js
+project-root
+│
+├── data
+│   └── session.json
+│
+├── dist
+│   ├── index.html
+│   ├── index.js
+│   └── index.css
+│
+├── src
+│   ├── index.js
+│   ├── lib
+│   │   ├── base32.js
+│   │   ├── cache-map.js
+│   │   ├── cookie-store.js
+│   │   ├── crash.js
+│   │   ├── env.js
+│   │   ├── fetch.js
+│   │   ├── file.js
+│   │   ├── jwt.js
+│   │   ├── otp.js
+│   │   ├── router.js
+│   │   ├── store.js
+│   │   ├── timeout.js
+│   │   ├── util.js
+│   │   ├── validation.js
+│   │   └── web-socket.js
+│   │
+│   ├── api
+│   │   ├── index.js
+│   │   ├── main
+│   │   │   ├── controller.js
+│   │   │   ├── index.js
+│   │   │   └── model.js
+│   │   ├── auth
+│   │   │   ├── controller.js
+│   │   │   ├── index.js
+│   │   │   └── model.js
+│   │   └── other
+│   │       ├── controller.js
+│   │       ├── index.js
+│   │       └── model.js
+│
+└── test
+    └── *.js
 ```
 
 ---
 
-## 🚀 Usage Example
+## Example Usage
+
 ```js
 require("./lib/crash.js");
 require("./lib/env.js");
@@ -114,6 +146,7 @@ const WebSocket = require("./lib/web-socket.js");
 
 const app = new Router();
 
+app.use(Router.timeout(10000));
 app.use(Router.compression());
 app.use(Router.cookie());
 app.use(Router.json());
@@ -125,7 +158,7 @@ app.use(
         { method: "POST", path: "/api/auth/verify", timeWindow: 60, requestQuota: 3 },
         { method: "POST", path: "/api/auth/refresh", timeWindow: 60, requestQuota: 100 },
         { method: "POST", path: "/api/auth/revoke", timeWindow: 60, requestQuota: 100 },
-    ]),
+    ])
 );
 app.use(
     authorization([
@@ -133,7 +166,7 @@ app.use(
         { role: "admin", type: "access_token", method: "POST", path: "/api/auth/revoke", scope: "own" },
         { role: "user", type: "refresh_token", method: "POST", path: "/api/auth/refresh", scope: "own" },
         { role: "user", type: "access_token", method: "POST", path: "/api/auth/revoke", scope: "own" },
-    ]),
+    ])
 );
 app.use(Router.static(path.join(process.cwd(), "dist")));
 app.use("/api", require("./api/index.js"));
@@ -170,18 +203,15 @@ httpsServer.listen(process.env.HTTPS_PORT, "0.0.0.0", () => {
 
 ---
 
-## 💡 Future Plans
-- Redis-like backend for CacheMap
-- Built-in testing utilities
-- CLI scaffolding
-- Swagger/OpenAPI generation
-- Full E2E auth flow (login → JWT → refresh → revoke)
+## Development Roadmap
+- Redis-like backend for `CacheMap`
+- Built-in unit testing utilities
+- CLI for scaffolding project modules
+- OpenAPI/Swagger generation
+- Full authentication flow (login, token, refresh, revoke)
 
 ---
 
-Framework ini dibuat khusus untuk kebutuhan internal fintech dan ERP. Ringan, modular, dan disusun dengan prinsip fleksibilitas dan maintainability tinggi.
+This framework is created specifically for internal fintech and ERP systems. It is built with a strong emphasis on flexibility, maintainability, and performance.
 
----
-
-Created with ❤️ by Ridho Prasetya (Ndiing)
-
+Developed and maintained by Ridho Prasetya (Ndiing).
