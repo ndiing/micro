@@ -45,7 +45,7 @@ class OTP {
         return OTP.hotp({ key, counter, algorithm, digits, encoding });
     }
 
-     /**
+    /**
      * Generates a random secret key.
      * @param {Object} options - The parameters for key generation.
      * @param {string} options.algorithm - The hash algorithm (sha1, sha256, sha512).

@@ -67,7 +67,6 @@ class Router {
         return this;
     }
 
-    
     /**
      * Registers a GET route.
      * @param {...any} args - Path and middleware functions.
@@ -277,7 +276,7 @@ class Router {
         }
     }
 
-     /**
+    /**
      * Starts an HTTP server and listens for incoming requests.
      * @param {...any} args - Arguments passed to `http.createServer().listen()`.
      * @returns {http.Server} The HTTP server instance.

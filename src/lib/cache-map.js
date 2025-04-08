@@ -65,7 +65,7 @@ class CacheMap extends Map {
         super.set(key, value);
     }
 
-     /**
+    /**
      * Calculates the current memory usage.
      * @returns {number} The percentage of used memory (0 to 1).
      */
@@ -73,7 +73,7 @@ class CacheMap extends Map {
         return 1 - os.freemem() / os.totalmem();
     }
 
-     /**
+    /**
      * Clears the least recently used entries when memory usage exceeds the defined threshold.
      */
     clearMem() {

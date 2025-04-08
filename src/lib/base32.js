@@ -59,8 +59,6 @@ class Base32 {
     }
 }
 
-
-
 /**
  * Overrides the Buffer.toString method to support Base32 encoding.
  * @param {string} encoding - The encoding type.

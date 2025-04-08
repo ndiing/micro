@@ -75,7 +75,7 @@ class CookieStore {
         return [].concat(this[name]).filter(Boolean);
     }
 
-     /**
+    /**
      * Sets a cookie with the given name and value.
      * @param {string|Object} name - The name of the cookie, or an object with { name, value }.
      * @param {*} [value] - The value of the cookie (if `name` is a string).
