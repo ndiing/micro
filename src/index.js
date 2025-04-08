@@ -4,7 +4,7 @@ require("./lib/env.js");
 const http = require("http");
 const https = require("https");
 const Router = require("./lib/router.js");
-const { authorization } = require("./api/auth/controller.js");
+const { authorization } = require("./api/auth/middleware.js");
 const { permissions } = require("./api/auth/model.js");
 const app = new Router();
 

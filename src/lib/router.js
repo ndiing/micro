@@ -209,210 +209,201 @@ class Router {
         server.listen(...args);
         return server;
     }
-}
 
-function compression() {
-    return (req, res, next) => {
-        const send = res.send;
+    static compression() {
+        return (req, res, next) => {
+            const send = res.send;
 
-        res.send = (body) => {
-            if (!(body instanceof Readable)) {
-                const readable = new Readable();
-                readable.push(body);
-                readable.push(null);
-                body = readable;
-            }
+            res.send = (body) => {
+                if (!(body instanceof Readable)) {
+                    const readable = new Readable();
+                    readable.push(body);
+                    readable.push(null);
+                    body = readable;
+                }
 
-            const acceptEncoding = req.headers["accept-encoding"] || "";
-            if (/\bgzip\b/.test(acceptEncoding)) {
-                res.setHeader("Content-Encoding", "gzip");
-                body = body.pipe(zlib.createGzip());
-            } else if (/\bdeflate\b/.test(acceptEncoding)) {
-                res.setHeader("Content-Encoding", "deflate");
-                body = body.pipe(zlib.createDeflate());
-            } else if (/\bbr\b/.test(acceptEncoding)) {
-                res.setHeader("Content-Encoding", "br");
-                body = body.pipe(zlib.createBrotliCompress());
-            }
+                const acceptEncoding = req.headers["accept-encoding"] || "";
+                if (/\bgzip\b/.test(acceptEncoding)) {
+                    res.setHeader("Content-Encoding", "gzip");
+                    body = body.pipe(zlib.createGzip());
+                } else if (/\bdeflate\b/.test(acceptEncoding)) {
+                    res.setHeader("Content-Encoding", "deflate");
+                    body = body.pipe(zlib.createDeflate());
+                } else if (/\bbr\b/.test(acceptEncoding)) {
+                    res.setHeader("Content-Encoding", "br");
+                    body = body.pipe(zlib.createBrotliCompress());
+                }
 
-            send(body);
+                send(body);
+            };
+
+            next();
+        };
+    }
+
+    static cookie() {
+        const ATTRIBUTES = {
+            domain: "Domain",
+            expires: "Expires",
+            httpOnly: "HttpOnly",
+            maxAge: "Max-Age",
+            partitioned: "Partitioned",
+            path: "Path",
+            secure: "Secure",
+            sameSite: "SameSite",
         };
 
-        next();
-    };
-}
+        return (req, res, next) => {
+            const cookie = {};
+            for (const [, name, value] of (req.headers.cookie || "").matchAll(/([^=; ]+)=([^;]+)/g)) {
+                cookie[name] = value;
+            }
+            req.cookie = cookie;
 
-function cookie() {
-    const ATTRIBUTES = {
-        domain: "Domain",
-        expires: "Expires",
-        httpOnly: "HttpOnly",
-        maxAge: "Max-Age",
-        partitioned: "Partitioned",
-        path: "Path",
-        secure: "Secure",
-        sameSite: "SameSite",
-    };
+            const setCookie = [];
+            res.cookie = (name, value, attributes = {}) => {
+                const cookie = [[name, value].join("=")];
 
-    return (req, res, next) => {
-        const cookie = {};
-        for (const [, name, value] of (req.headers.cookie || "").matchAll(/([^=; ]+)=([^;]+)/g)) {
-            cookie[name] = value;
-        }
-        req.cookie = cookie;
+                for (const name in attributes) {
+                    const value = attributes[name];
 
-        const setCookie = [];
-        res.cookie = (name, value, attributes = {}) => {
-            const cookie = [[name, value].join("=")];
+                    if (!ATTRIBUTES[name]) {
+                        continue;
+                    }
 
-            for (const name in attributes) {
-                const value = attributes[name];
-
-                if (!ATTRIBUTES[name]) {
-                    continue;
+                    cookie.push([ATTRIBUTES[name], value].join("="));
                 }
 
-                cookie.push([ATTRIBUTES[name], value].join("="));
+                setCookie.push(cookie.join("; "));
+
+                res.setHeader("Set-Cookie", setCookie);
+
+                return res;
+            };
+
+            next();
+        };
+    }
+
+    static json() {
+        return async (req, res, next) => {
+            try {
+                if (["POST", "PATCH", "PUT"].includes(req.method)) {
+                    const chunks = [];
+                    for await (const chunk of req) {
+                        chunks.push(chunk);
+                    }
+
+                    const buffer = Buffer.concat(chunks);
+
+                    const contentType = req.headers["content-type"] || "";
+                    if (contentType.includes("application/json")) {
+                        req.body = JSON.parse(buffer);
+                    } else {
+                        req.body = buffer;
+                    }
+                }
+
+                next();
+            } catch (error) {
+                next(error);
             }
+        };
+    }
 
-            setCookie.push(cookie.join("; "));
-
-            res.setHeader("Set-Cookie", setCookie);
-
-            return res;
+    static cors(headers = {}) {
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            ...headers,
         };
 
-        next();
-    };
-}
-
-function json() {
-    return async (req, res, next) => {
-        try {
-            if (["POST", "PATCH", "PUT"].includes(req.method)) {
-                const chunks = [];
-                for await (const chunk of req) {
-                    chunks.push(chunk);
-                }
-
-                const buffer = Buffer.concat(chunks);
-
-                const contentType = req.headers["content-type"] || "";
-                if (contentType.includes("application/json")) {
-                    req.body = JSON.parse(buffer);
-                } else {
-                    req.body = buffer;
-                }
+        return (req, res, next) => {
+            for (const name in headers) {
+                res.setHeader(name, headers[name]);
             }
 
             next();
-        } catch (error) {
-            next(error);
-        }
-    };
+        };
+    }
+
+    static security(headers = {}) {
+        headers = {
+            "X-DNS-Prefetch-Control": "off",
+            "X-Frame-Options": "SAMEORIGIN",
+            "Strict-Transport-Security": "max-age=15552000; includeSubDomains",
+            "X-Content-Type-Options": "nosniff",
+            "X-XSS-Protection": "0",
+            "Referrer-Policy": "no-referrer",
+            "Permissions-Policy": "geolocation=(), microphone=()",
+            ...headers,
+        };
+
+        return (req, res, next) => {
+            for (const name in headers) {
+                res.setHeader(name, headers[name]);
+            }
+
+            next();
+        };
+    }
+
+    static rateLimit(options = {}) {
+        const { timeWindow = 60, requestQuota = 100 } = options;
+
+        const cacheMap = new CacheMap();
+
+        return (req, res, next) => {
+            const now = Date.now();
+            const key = [req.socket.remoteAddress, req.method, req._url.pathname].join();
+            let item = cacheMap.get(key);
+
+            if (!item || now > item.expiringLimit) {
+                item = {
+                    requestQuota: requestQuota,
+                    quotaUnits: requestQuota - 1,
+                    expiringLimit: now + timeWindow * 1000,
+                };
+            } else {
+                item.quotaUnits--;
+            }
+
+            cacheMap.set(key, item);
+
+            const deltaSeconds = Math.ceil((item.expiringLimit - now) / 1000);
+
+            res.setHeader("RateLimit-Limit", item.requestQuota);
+            res.setHeader("RateLimit-Remaining", Math.max(0, item.quotaUnits));
+            res.setHeader("RateLimit-Reset", deltaSeconds);
+
+            if (item.quotaUnits < 0) {
+                res.status(429);
+                res.setHeader("Retry-After", deltaSeconds);
+
+                return next(new Error(http.STATUS_CODES[429]));
+            }
+
+            next();
+        };
+    }
+
+    static missing() {
+        return (req, res, next) => {
+            res.status(404);
+            next(new Error(http.STATUS_CODES[404]));
+        };
+    }
+
+    static catchAll() {
+        return (err, req, res, next) => {
+            err = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+                res.status(500);
+            }
+
+            res.json({ message: err.message });
+        };
+    }
 }
-
-function cors(headers = {}) {
-    headers = {
-        "Access-Control-Allow-Origin": "*",
-        ...headers,
-    };
-
-    return (req, res, next) => {
-        for (const name in headers) {
-            res.setHeader(name, headers[name]);
-        }
-
-        next();
-    };
-}
-
-function security(headers = {}) {
-    headers = {
-        "X-DNS-Prefetch-Control": "off",
-        "X-Frame-Options": "SAMEORIGIN",
-        "Strict-Transport-Security": "max-age=15552000; includeSubDomains",
-        "X-Content-Type-Options": "nosniff",
-        "X-XSS-Protection": "0",
-        "Referrer-Policy": "no-referrer",
-        "Permissions-Policy": "geolocation=(), microphone=()",
-        ...headers,
-    };
-
-    return (req, res, next) => {
-        for (const name in headers) {
-            res.setHeader(name, headers[name]);
-        }
-
-        next();
-    };
-}
-
-function rateLimit(options = {}) {
-    const { timeWindow = 60, requestQuota = 100 } = options;
-
-    const cacheMap = new CacheMap();
-
-    return (req, res, next) => {
-        const now = Date.now();
-        const key = [req.socket.remoteAddress, req.method, req._url.pathname].join();
-        let item = cacheMap.get(key);
-
-        if (!item || now > item.expiringLimit) {
-            item = {
-                requestQuota: requestQuota,
-                quotaUnits: requestQuota - 1,
-                expiringLimit: now + timeWindow * 1000,
-            };
-        } else {
-            item.quotaUnits--;
-        }
-
-        cacheMap.set(key, item);
-
-        const deltaSeconds = Math.ceil((item.expiringLimit - now) / 1000);
-
-        res.setHeader("RateLimit-Limit", item.requestQuota);
-        res.setHeader("RateLimit-Remaining", Math.max(0, item.quotaUnits));
-        res.setHeader("RateLimit-Reset", deltaSeconds);
-
-        if (item.quotaUnits < 0) {
-            res.status(429);
-            res.setHeader("Retry-After", deltaSeconds);
-
-            return next(new Error(http.STATUS_CODES[429]));
-        }
-
-        next();
-    };
-}
-
-function missing() {
-    return (req, res, next) => {
-        res.status(404);
-        next(new Error(http.STATUS_CODES[404]));
-    };
-}
-
-function catchAll() {
-    return (err, req, res, next) => {
-        err = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)));
-
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-            res.status(500);
-        }
-
-        res.json({ message: err.message });
-    };
-}
-
-Router.compression = compression;
-Router.cookie = cookie;
-Router.json = json;
-Router.cors = cors;
-Router.security = security;
-Router.rateLimit = rateLimit;
-Router.missing = missing;
-Router.catchAll = catchAll;
 
 module.exports = Router;
