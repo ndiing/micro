@@ -13,5 +13,8 @@
     "description": "",
     "devDependencies": {
         "@types/node": "^22.14.0"
+    },
+    "dependencies": {
+        "undici": "^6.21.2"
     }
 }

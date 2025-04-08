@@ -23,7 +23,7 @@ class Middleware {
                 const [scheme, credentials] = (req.headers.authorization || "").split(" ");
 
                 try {
-                    const payload = JWT.verify(credentials, process.env.SECRET);
+                    const payload = JWT.verify(credentials, process.env.TOKEN_SECRET);
                     res.locals.payload = payload;
                 } catch (error) {
                     res.status(401);

@@ -8,6 +8,8 @@ const { authorization } = require("./api/auth/middleware.js");
 const { permissions } = require("./api/auth/model.js");
 const app = new Router();
 
+require("./lib/fetch.js");
+
 app.use(Router.compression());
 app.use(Router.cookie());
 app.use(Router.json());
