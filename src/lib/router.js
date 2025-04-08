@@ -306,7 +306,7 @@ class Router {
                 body.pipe(res);
                 end = true;
             } catch (error) {
-                err=error
+                err = error;
             }
         };
 
@@ -316,7 +316,7 @@ class Router {
                 res.setHeader("Content-Type", "application/json");
                 res.send(JSON.stringify(body));
             } catch (error) {
-                err=error
+                err = error;
             }
         };
 
@@ -326,7 +326,7 @@ class Router {
                 res.setHeader("Content-Type", MIME_TYPES[path.extname(pathname)]);
                 res.send(fs.createReadStream(pathname));
             } catch (error) {
-                err=error
+                err = error;
             }
         };
 
@@ -624,7 +624,7 @@ class Router {
      */
     static static(dirname) {
         return (req, res, next) => {
-            const pathname = path.join(dirname,req._url.pathname === "/" ? "/index.html" : req._url.pathname);
+            const pathname = path.join(dirname, req._url.pathname === "/" ? "/index.html" : req._url.pathname);
 
             if (fs.existsSync(pathname)) {
                 res.sendFile(pathname);

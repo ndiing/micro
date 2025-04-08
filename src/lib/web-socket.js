@@ -1,21 +1,28 @@
-const http = require("http");
 const crypto = require("crypto");
 const EventEmitter = require("events");
 
+/**
+ * WebSocket class responsible for managing WebSocket connections, including sending and receiving messages.
+ * Extends EventEmitter to handle connection events.
+ * @extends EventEmitter
+ */
 class WebSocket extends EventEmitter {
-    constructor(server) {
+    /**
+     * Creates an instance of the WebSocket class.
+     */
+    constructor() {
         super();
         this.setMaxListeners(0);
         this.clients = new Map();
         this.upgrade = this.upgrade.bind(this);
-
-        if (server === undefined || server === null) {
-            server = http.createServer((req, res) => res.end(null));
-            server.on("upgrade", this.upgrade);
-            server.listen(80, () => console.log(server.address()));
-        }
     }
 
+    /**
+     * Handles WebSocket upgrade requests and establishes a connection.
+     * @param {http.IncomingMessage} req - The HTTP request object.
+     * @param {net.Socket} socket - The network socket between the server and client.
+     * @param {Buffer} head - The first packet of the upgraded stream.
+     */
     upgrade(req, socket, head) {
         const hash = crypto
             .createHash("sha1")
@@ -58,6 +65,11 @@ class WebSocket extends EventEmitter {
         });
     }
 
+    /**
+     * Encodes data into a WebSocket frame.
+     * @param {string|Buffer} data - The data to encode.
+     * @returns {Buffer} The encoded WebSocket frame.
+     */
     encode(data) {
         let payloadBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data, "utf8");
         const length = payloadBuffer.length;
@@ -82,6 +94,11 @@ class WebSocket extends EventEmitter {
         return frame;
     }
 
+    /**
+     * Decodes a WebSocket frame into data.
+     * @param {Buffer} frame - The WebSocket frame to decode.
+     * @returns {string|Buffer|null} The decoded data or null if the frame is a close frame.
+     */
     decode(frame) {
         if (frame.length < 2) return null;
         const firstByte = frame[0];

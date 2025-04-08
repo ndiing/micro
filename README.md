@@ -29,6 +29,10 @@ including HOTP, TOTP, random key generation, and OTP authentication URL creation
 <dd><p>Store class provides a proxy-based mechanism for handling data storage,
 supporting automatic persistence and caching.</p>
 </dd>
+<dt><a href="#WebSocket">WebSocket</a> ⇐ <code>EventEmitter</code></dt>
+<dd><p>WebSocket class responsible for managing WebSocket connections, including sending and receiving messages.
+Extends EventEmitter to handle connection events.</p>
+</dd>
 </dl>
 
 ## Constants
@@ -841,6 +845,63 @@ Automatically reads the file and initializes storage with automatic persistence.
 | Param | Type | Description |
 | --- | --- | --- |
 | filename | <code>string</code> | The filename where the store data is stored. |
+
+<a name="WebSocket"></a>
+
+## WebSocket ⇐ <code>EventEmitter</code>
+WebSocket class responsible for managing WebSocket connections, including sending and receiving messages.
+Extends EventEmitter to handle connection events.
+
+**Kind**: global class  
+**Extends**: <code>EventEmitter</code>  
+
+* [WebSocket](#WebSocket) ⇐ <code>EventEmitter</code>
+    * [new WebSocket()](#new_WebSocket_new)
+    * [.upgrade(req, socket, head)](#WebSocket+upgrade)
+    * [.encode(data)](#WebSocket+encode) ⇒ <code>Buffer</code>
+    * [.decode(frame)](#WebSocket+decode) ⇒ <code>string</code> \| <code>Buffer</code> \| <code>null</code>
+
+<a name="new_WebSocket_new"></a>
+
+### new WebSocket()
+Creates an instance of the WebSocket class.
+
+<a name="WebSocket+upgrade"></a>
+
+### webSocket.upgrade(req, socket, head)
+Handles WebSocket upgrade requests and establishes a connection.
+
+**Kind**: instance method of [<code>WebSocket</code>](#WebSocket)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| req | <code>http.IncomingMessage</code> | The HTTP request object. |
+| socket | <code>net.Socket</code> | The network socket between the server and client. |
+| head | <code>Buffer</code> | The first packet of the upgraded stream. |
+
+<a name="WebSocket+encode"></a>
+
+### webSocket.encode(data) ⇒ <code>Buffer</code>
+Encodes data into a WebSocket frame.
+
+**Kind**: instance method of [<code>WebSocket</code>](#WebSocket)  
+**Returns**: <code>Buffer</code> - The encoded WebSocket frame.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to encode. |
+
+<a name="WebSocket+decode"></a>
+
+### webSocket.decode(frame) ⇒ <code>string</code> \| <code>Buffer</code> \| <code>null</code>
+Decodes a WebSocket frame into data.
+
+**Kind**: instance method of [<code>WebSocket</code>](#WebSocket)  
+**Returns**: <code>string</code> \| <code>Buffer</code> \| <code>null</code> - The decoded data or null if the frame is a close frame.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| frame | <code>Buffer</code> | The WebSocket frame to decode. |
 
 <a name="originalToString"></a>
 
