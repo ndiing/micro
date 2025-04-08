@@ -258,38 +258,38 @@ class Router {
      * @property {Object.<string, string>} params - Route parameters.
      */
 
-/**
- * @callback StatusFunction
- * @param {number} code - HTTP status code
- * @returns {CustomResponse}
- */
+    /**
+     * @callback StatusFunction
+     * @param {number} code - HTTP status code
+     * @returns {CustomResponse}
+     */
 
-/**
- * @callback SendFunction
- * @param {string | Buffer} body - Response body
- * @returns {void}
- */
+    /**
+     * @callback SendFunction
+     * @param {string | Buffer} body - Response body
+     * @returns {void}
+     */
 
-/**
- * @callback JsonFunction
- * @param {any} data - Data to send as JSON
- * @returns {void}
- */
+    /**
+     * @callback JsonFunction
+     * @param {any} data - Data to send as JSON
+     * @returns {void}
+     */
 
-/**
- * @callback SendFileFunction
- * @param {string} filePath - Path to the file to send
- * @returns {void}
- */
+    /**
+     * @callback SendFileFunction
+     * @param {string} filePath - Path to the file to send
+     * @returns {void}
+     */
 
-/**
- * @typedef {Object} CustomResponse
- * @property {Object} locals - Middleware-local state.
- * @property {StatusFunction} status - Set response status.
- * @property {SendFunction} send - Send raw response body.
- * @property {JsonFunction} json - Send JSON response.
- * @property {SendFileFunction} sendFile - Send file response.
- */
+    /**
+     * @typedef {Object} CustomResponse
+     * @property {Object} locals - Middleware-local state.
+     * @property {StatusFunction} status - Set response status.
+     * @property {SendFunction} send - Send raw response body.
+     * @property {JsonFunction} json - Send JSON response.
+     * @property {SendFileFunction} sendFile - Send file response.
+     */
 
     /**
      * Handles incoming HTTP requests and executes relevant middleware.
