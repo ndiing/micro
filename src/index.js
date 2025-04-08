@@ -6,7 +6,6 @@ const https = require("https");
 const path = require("path");
 const Router = require("./lib/router.js");
 const { authorization } = require("./api/auth/middleware.js");
-const { permissions } = require("./api/auth/model.js");
 const WebSocket = require("./lib/web-socket.js");
 
 const app = new Router();
@@ -16,8 +15,22 @@ app.use(Router.cookie());
 app.use(Router.json());
 app.use(Router.cors());
 app.use(Router.security());
-app.use(Router.rateLimit());
-app.use(authorization(permissions));
+app.use(
+    Router.rateLimit([
+        { method: "POST", path: "/api/auth/request", timeWindow: 60, requestQuota: 3 },
+        { method: "POST", path: "/api/auth/verify", timeWindow: 60, requestQuota: 3 },
+        { method: "POST", path: "/api/auth/refresh", timeWindow: 60, requestQuota: 100 },
+        { method: "POST", path: "/api/auth/revoke", timeWindow: 60, requestQuota: 100 },
+    ]),
+);
+app.use(
+    authorization([
+        { role: "admin", type: "refresh_token", method: "POST", path: "/api/auth/refresh", scope: "own" },
+        { role: "admin", type: "access_token", method: "POST", path: "/api/auth/revoke", scope: "own" },
+        { role: "user", type: "refresh_token", method: "POST", path: "/api/auth/refresh", scope: "own" },
+        { role: "user", type: "access_token", method: "POST", path: "/api/auth/revoke", scope: "own" },
+    ]),
+);
 app.use(Router.static(path.join(process.cwd(), "dist")));
 app.use("/api", require("./api/index.js"));
 app.use(Router.missing());

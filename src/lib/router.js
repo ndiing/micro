@@ -566,45 +566,61 @@ class Router {
     }
 
     /**
-     * Middleware to implement basic rate limiting.
-     * @param {Object} [options={}] - Rate limit configuration.
-     * @param {number} [options.timeWindow=60] - Time window in seconds.
-     * @param {number} [options.requestQuota=100] - Maximum requests per window.
-     * @returns {Function} Express-style middleware function.
+     * Middleware to implement configurable rate limiting rules for incoming requests.
+     * Multiple rules can be defined based on request method and path.
+     * @param {Array<Object>} [rules=[]] - Array of rate limiting rules.
+     * @param {string} [rules[].method="*"] - HTTP method to apply rate limiting ("*" applies to all methods).
+     * @param {string} [rules[].path="*"] - URL path pattern for applying rate limiting.
+     * @param {number} [rules[].timeWindow=60] - Time window in seconds for limiting requests.
+     * @param {number} [rules[].requestQuota=100] - Maximum number of requests allowed within the time window.
+     * @returns {Function} Express-style middleware function for enforcing rate limits.
      */
-    static rateLimit(options = {}) {
-        const { timeWindow = 60, requestQuota = 100 } = options;
+    static rateLimit(rules = []) {
+        if (!rules.length) {
+            rules = [{ method: "*", path: "*", timeWindow: 60, requestQuota: 100 }];
+        }
+
+        rules = rules.map((rule) => {
+            rule.regexp = pathToRegexp(rule.path);
+            return rule;
+        });
 
         const cacheMap = new CacheMap();
 
         return (req, res, next) => {
-            const now = Date.now();
-            const key = [req.socket.remoteAddress, req.method, req._url.pathname].join();
-            let item = cacheMap.get(key);
+            const rule = rules.find((rule) => (rule.method === "*" || rule.method === req.method) && rule.regexp.test(req._url.pathname));
 
-            if (!item || now > item.expiringLimit) {
-                item = {
-                    requestQuota: requestQuota,
-                    quotaUnits: requestQuota - 1,
-                    expiringLimit: now + timeWindow * 1000,
-                };
-            } else {
-                item.quotaUnits--;
-            }
+            if (rule) {
+                const { timeWindow = 60, requestQuota = 100 } = rule;
 
-            cacheMap.set(key, item);
+                const now = Date.now();
+                const key = [req.socket.remoteAddress, req.method, req._url.pathname].join();
+                let item = cacheMap.get(key);
 
-            const deltaSeconds = Math.ceil((item.expiringLimit - now) / 1000);
+                if (!item || now > item.expiringLimit) {
+                    item = {
+                        requestQuota: requestQuota,
+                        quotaUnits: requestQuota - 1,
+                        expiringLimit: now + timeWindow * 1000,
+                    };
+                } else {
+                    item.quotaUnits--;
+                }
 
-            res.setHeader("RateLimit-Limit", item.requestQuota);
-            res.setHeader("RateLimit-Remaining", Math.max(0, item.quotaUnits));
-            res.setHeader("RateLimit-Reset", deltaSeconds);
+                cacheMap.set(key, item);
 
-            if (item.quotaUnits < 0) {
-                res.status(429);
-                res.setHeader("Retry-After", deltaSeconds);
+                const deltaSeconds = Math.ceil((item.expiringLimit - now) / 1000);
 
-                return next(new Error(http.STATUS_CODES[429]));
+                res.setHeader("RateLimit-Limit", item.requestQuota);
+                res.setHeader("RateLimit-Remaining", Math.max(0, item.quotaUnits));
+                res.setHeader("RateLimit-Reset", deltaSeconds);
+
+                if (item.quotaUnits < 0) {
+                    res.status(429);
+                    res.setHeader("Retry-After", deltaSeconds);
+
+                    return next(new Error(http.STATUS_CODES[429]));
+                }
             }
 
             next();

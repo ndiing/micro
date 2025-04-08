@@ -52,7 +52,7 @@ class OTP {
      * @param {string} [options.encoding="base32"] - The encoding of the generated key.
      * @returns {string} The generated secret key.
      */
-    static randomKey({ algorithm, encoding = "base32" } = {}) {
+    static randomKey({ algorithm = "sha1", encoding = "base32" } = {}) {
         const bytes = { sha1: 20, sha256: 32, sha512: 64 };
         return Buffer.from(crypto.randomBytes(bytes[algorithm] / 2)).toString(encoding);
     }

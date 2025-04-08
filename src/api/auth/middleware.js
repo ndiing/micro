@@ -1,6 +1,10 @@
 const http = require("http");
 const JWT = require("../../lib/jwt.js");
+const { JWTError } = require("../../lib/jwt.js");
 const { pathToRegexp } = require("../../lib/util.js");
+
+// authentication
+// authorization
 
 class Middleware {
     static authorization(permissions) {
@@ -16,31 +20,34 @@ class Middleware {
             if (items.length) {
                 const [scheme, credentials] = (req.headers.authorization || "").split(" ");
 
-                try {
-                    const payload = JWT.decode(credentials);
-                    res.locals.decoded = payload;
-                } catch (error) {
+                if (!credentials) {
                     res.status(400);
-                    return next(http.STATUS_CODES[400]);
+                    return next(new JWTError("invalid_request", "The request is missing a required parameter"));
                 }
 
+                res.locals.credentials = credentials;
+
                 try {
-                    const secret = res.locals.decoded.type === "access_token" ? res.locals.SECRET_ACCESS : res.locals.SECRET_REFRESH;
-                    const payload = JWT.verify(credentials, secret);
+                    const payload = JWT.verify(res.locals.credentials, process.env.SECRET_TOKEN);
                     res.locals.payload = payload;
                 } catch (error) {
                     res.status(401);
-                    return next(new Error(http.STATUS_CODES[401]));
+                    return next(new JWTError("invalid_token", "The access token provided is malformed"));
                 }
 
                 const permission = items.find((item) => item.role === res.locals.payload.role && item.method === req.method);
 
                 if (!permission) {
                     res.status(403);
-                    return next(new Error(http.STATUS_CODES[403]));
+                    return next(new JWTError("insufficient_scope", "The request requires higher privileges than provided by the access token"));
                 }
 
                 res.locals.permission = permission;
+
+                if (res.locals.permission.type !== res.locals.payload.type) {
+                    res.status(401);
+                    return next(new JWTError("invalid_token", "The access token provided is invalid for other reasons"));
+                }
             }
 
             next();

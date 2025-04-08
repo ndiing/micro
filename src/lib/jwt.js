@@ -206,13 +206,13 @@ class JWT {
      */
     static verify(token = "", secret = "") {
         if (!token) {
-            throw new Error("Token is required");
+            throw new JWTError("invalid_request", "The request is missing a required parameter");
         }
 
         let array = token.split(".");
 
         if (array.length !== 3) {
-            throw new Error("Malformed token: expected 3 parts (header, payload, signature)");
+            throw new JWTError("invalid_request", "The access token provided is malformed");
         }
 
         let [header, payload, signature] = array;
@@ -226,21 +226,21 @@ class JWT {
         payload = JSON.parse(payload);
 
         if (!Verifier[header.alg](data, secret, signature)) {
-            throw new Error("Signature verification failed: token may be tampered or secret is incorrect");
+            throw new JWTError("invalid_token", "The access token provided is malformed");
         }
 
         const now = Math.floor(Date.now() / 1000);
 
         if (payload.exp && now > payload.exp) {
-            throw new Error("Token has expired (exp claim has passed)");
+            throw new JWTError("invalid_token", "The access token provided is expired");
         }
 
         if (payload.nbf && now < payload.nbf) {
-            throw new Error("Token is not active yet (nbf claim is in the future)");
+            throw new JWTError("invalid_token", "The access token provided is invalid for other reasons");
         }
 
         if (payload.iat && now < payload.iat) {
-            throw new Error("Invalid token: issued-at time (iat) is in the future");
+            throw new JWTError("invalid_token", "The access token provided is invalid for other reasons");
         }
 
         return payload;
@@ -264,7 +264,15 @@ class JWT {
     }
 }
 
+class JWTError extends Error {
+    constructor(code, message) {
+        super(message);
+        this.code = code;
+    }
+}
+
 JWT.Signer = Signer;
 JWT.Verifier = Verifier;
+JWT.JWTError = JWTError;
 
 module.exports = JWT;

@@ -31,24 +31,29 @@ GET http://localhost/api
 POST http://localhost/api/auth/request
 Content-Type: application/json
 
-{}
+{
+    "username":"ndiing.inc@gmail.com"
+}
 
 ###
 POST http://localhost/api/auth/verify
 Content-Type: application/json
 
-{}
+{
+    "username":"ndiing.inc@gmail.com",
+    "password":"134701"
+}
 
 ###
 POST http://localhost/api/auth/refresh
-Authorization: Bearer token
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJ0eXBlIjoicmVmcmVzaF90b2tlbiIsImV4cCI6MTc0NDE3MDk2MX0.MkopM9zd-15mGKlaE3k6pvyUagxs60esYktcPMZKyFI
 Content-Type: application/json
 
 {}
 
 ###
 POST http://localhost/api/auth/revoke
-Authorization: Bearer token
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJ0eXBlIjoiYWNjZXNzX3Rva2VuIiwiZXhwIjoxNzQ0MTMxMzYxfQ.-MqkCKRfUSvoD8RGn9MOPnxsklMX8Kw9-Ibvxhzjs_8
 Content-Type: application/json
 
 {}
