@@ -1,947 +1,103 @@
-## Classes
+# Custom HTTP Framework for Node.js
 
-<dl>
-<dt><a href="#Base32">Base32</a></dt>
-<dd><p>Base32 class responsible for encoding and decoding data using Base32 encoding.</p>
-</dd>
-<dt><a href="#CacheMap">CacheMap</a> ⇐ <code>Map</code></dt>
-<dd><p>CacheMap class extends the native Map with additional memory management capabilities.
-Automatically clears least recently used entries when memory usage exceeds the defined threshold.</p>
-</dd>
-<dt><a href="#CookieStore">CookieStore</a></dt>
-<dd><p>CookieStore class responsible for managing cookies in an object-like format.</p>
-</dd>
-<dt><a href="#File">File</a></dt>
-<dd><p>File class provides methods for reading and writing files,
-including support for JSON and compressed (.gz) files.</p>
-</dd>
-<dt><a href="#JWT">JWT</a></dt>
-<dd><p>JWT class responsible for encoding, decoding, signing, and verifying JSON Web Tokens (JWT).</p>
-</dd>
-<dt><a href="#OTP">OTP</a></dt>
-<dd><p>OTP class provides methods for generating and managing One-Time Passwords (OTP),
-including HOTP, TOTP, random key generation, and OTP authentication URL creation.</p>
-</dd>
-<dt><a href="#Router">Router</a></dt>
-<dd><p>Router class provides an Express-like routing system for handling HTTP requests.</p>
-</dd>
-<dt><a href="#Store">Store</a></dt>
-<dd><p>Store class provides a proxy-based mechanism for handling data storage,
-supporting automatic persistence and caching.</p>
-</dd>
-<dt><a href="#WebSocket">WebSocket</a> ⇐ <code>EventEmitter</code></dt>
-<dd><p>WebSocket class responsible for managing WebSocket connections, including sending and receiving messages.
-Extends EventEmitter to handle connection events.</p>
-</dd>
-</dl>
+A lightweight, fully-custom HTTP framework for Node.js, built from scratch without Express or Fastify. Designed specifically for **Fintech** and **ERP** API backends, prioritizing modularity, performance, and security.
 
-## Constants
+---
 
-<dl>
-<dt><a href="#originalToString">originalToString</a> ⇒ <code>string</code></dt>
-<dd><p>Overrides the Buffer.toString method to support Base32 encoding.</p>
-</dd>
-<dt><a href="#originalFrom">originalFrom</a> ⇒ <code>Buffer</code></dt>
-<dd><p>Overrides the Buffer.from method to support Base32 decoding.</p>
-</dd>
-</dl>
+## 🚀 Features
 
-## Functions
+### ⚙️ Core
+- Native HTTP server (no Express)
+- Full support for all HTTP methods
+- Dynamic route params (`/user/:id`) and wildcard route (`/api/*`)
+- Nested router support
+- Middleware chaining with `async/await`
+- Built-in error handling and 404 fallback
 
-<dl>
-<dt><a href="#fetch">fetch([input], [init])</a> ⇒ <code>Promise.&lt;Response&gt;</code></dt>
-<dd><p>Custom fetch function that supports proxies and cookie management.</p>
-</dd>
-</dl>
+### 🧱 Modular Architecture
+- `router.js`: Route and nested route definition
+- `controller.js`: Handler functions and middleware usage
+- `model.js`: Permission definitions per role/type/method
 
-<a name="Base32"></a>
+### 🧰 Built-in Middleware
+- `json` – JSON body parser
+- `cookie` – Cookie parser and setter
+- `cors` – CORS headers
+- `security` – Security headers (CSP, XSS, etc.)
+- `compression` – `gzip`, `deflate`, and `brotli` encoding
+- `rateLimit` – Rate limiter using custom `CacheMap`
+- `authorization` – Role/type/method checker
+- `static` – Static file server
+- `missing` – 404 handler
+- `catchAll` – Global error handler
 
-## Base32
-Base32 class responsible for encoding and decoding data using Base32 encoding.
+### 🔒 Auth System
 
-**Kind**: global class  
+#### ✅ JWT (JSON Web Token)
+- Native implementation (no external libraries)
+- Support for: `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`, `PS256`, `PS384`, `PS512`
+- Base64url support with correct padding and saltLength
 
-* [Base32](#Base32)
-    * _instance_
-        * [.alphabet](#Base32+alphabet) : <code>string</code>
-    * _static_
-        * [.encode(buffer)](#Base32.encode) ⇒ <code>string</code>
-        * [.decode(string)](#Base32.decode) ⇒ <code>Buffer</code>
+#### ✅ OTP (One-Time Password)
+- HOTP and TOTP support
+- Custom Base32 encoder/decoder
+- OTP URI + QR Code generator
 
-<a name="Base32+alphabet"></a>
+#### 🔄 Passwordless Login (Planned)
+- OTP-based login flow
+- Temporary storage via `CacheMap` or Redis
 
-### base32.alphabet : <code>string</code>
-Alphabet used for Base32 encoding.
+### 🧠 Custom Utilities
 
-**Kind**: instance property of [<code>Base32</code>](#Base32)  
-<a name="Base32.encode"></a>
+#### 🧩 CacheMap
+- `Map` extension with TTL and memory limit
+- Auto garbage collection
+- LRU-like eviction strategy
 
-### Base32.encode(buffer) ⇒ <code>string</code>
-Encodes a given buffer into a Base32 string.
+#### 🌐 Custom Fetch Wrapper
+- Uses `undici.fetch`
+- Proxy support via `HTTP_PROXY` + `ProxyAgent`
+- Built-in cookieStore for persistent request cookies
 
-**Kind**: static method of [<code>Base32</code>](#Base32)  
-**Returns**: <code>string</code> - The Base32 encoded string.  
-**Throws**:
+#### 🔌 WebSocket Library
+- Manual HTTP to WS upgrade
+- RFC-compliant framing
+- Event-based client handling (`open`, `message`, `close`, `error`)
+- No external dependencies (`ws` not used)
 
-- <code>Error</code> If an invalid buffer is provided.
+---
 
+## 🎯 Focus and Design Philosophy
 
-| Param | Type | Description |
-| --- | --- | --- |
-| buffer | <code>Buffer</code> \| <code>string</code> | The data to encode. If a string is provided, it will be converted into a Buffer. |
+This framework is tailored for:
+- Fintech and ERP APIs
+- High security and performance
+- Microservices or monolith architecture
+- Fully customizable and modular core
 
-<a name="Base32.decode"></a>
+---
 
-### Base32.decode(string) ⇒ <code>Buffer</code>
-Decodes a Base32 encoded string into a Buffer.
+## 🛠️ Roadmap
 
-**Kind**: static method of [<code>Base32</code>](#Base32)  
-**Returns**: <code>Buffer</code> - The decoded data as a Buffer.  
-**Throws**:
+| Feature                        | Status       | Notes                                                   |
+|-------------------------------|--------------|---------------------------------------------------------|
+| Middleware timeout handler    | Planned      | Guard against uncalled `next()` in async middleware     |
+| Request validator             | Planned      | JSON Schema or custom validation rules                  |
+| Built-in logger               | Planned      | Middleware logger / audit logger                        |
+| CLI tools                     | Planned      | Module scaffolder, route generator                      |
+| Test suite                    | Planned      | Unit/integration testing (uvu/tap/vitest)               |
+| Granular rate limiter config | In Progress  | Per method+path, based on permission-style structure    |
+| Auto documentation generator | Planned      | Generate docs from route/controller metadata            |
 
-- <code>Error</code> If the string contains invalid Base32 characters.
+---
 
+## 📂 License
 
-| Param | Type | Description |
-| --- | --- | --- |
-| string | <code>string</code> | The Base32 encoded string to decode. |
+MIT License
 
-<a name="CacheMap"></a>
+---
 
-## CacheMap ⇐ <code>Map</code>
-CacheMap class extends the native Map with additional memory management capabilities.
-Automatically clears least recently used entries when memory usage exceeds the defined threshold.
+## 👤 Author
 
-**Kind**: global class  
-**Extends**: <code>Map</code>  
-
-* [CacheMap](#CacheMap) ⇐ <code>Map</code>
-    * [new CacheMap([entries], [options])](#new_CacheMap_new)
-    * [.has(key)](#CacheMap+has) ⇒ <code>boolean</code>
-    * [.get(key)](#CacheMap+get) ⇒ <code>\*</code>
-    * [.set(key, value)](#CacheMap+set)
-    * [.usageMem()](#CacheMap+usageMem) ⇒ <code>number</code>
-    * [.clearMem()](#CacheMap+clearMem)
-
-<a name="new_CacheMap_new"></a>
-
-### new CacheMap([entries], [options])
-Creates an instance of the CacheMap class.
-
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [entries] | <code>Iterable</code> |  | Initial key-value pairs for the map. |
-| [options] | <code>Object</code> | <code>{}</code> | Configuration options for cache behavior. |
-| [options.maxMem] | <code>number</code> | <code>0.9</code> | The maximum memory usage threshold before clearing cache. |
-
-<a name="CacheMap+has"></a>
-
-### cacheMap.has(key) ⇒ <code>boolean</code>
-Checks if a key exists in the map, moving it to the most recently accessed position if found.
-
-**Kind**: instance method of [<code>CacheMap</code>](#CacheMap)  
-**Returns**: <code>boolean</code> - True if the key exists, otherwise false.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| key | <code>\*</code> | The key to check. |
-
-<a name="CacheMap+get"></a>
-
-### cacheMap.get(key) ⇒ <code>\*</code>
-Retrieves a value from the map, moving it to the most recently accessed position.
-
-**Kind**: instance method of [<code>CacheMap</code>](#CacheMap)  
-**Returns**: <code>\*</code> - The value associated with the key, or undefined if not found.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| key | <code>\*</code> | The key to retrieve. |
-
-<a name="CacheMap+set"></a>
-
-### cacheMap.set(key, value)
-Sets a key-value pair in the map, ensuring that existing keys are repositioned.
-
-**Kind**: instance method of [<code>CacheMap</code>](#CacheMap)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| key | <code>\*</code> | The key to store. |
-| value | <code>\*</code> | The value associated with the key. |
-
-<a name="CacheMap+usageMem"></a>
-
-### cacheMap.usageMem() ⇒ <code>number</code>
-Calculates the current memory usage.
-
-**Kind**: instance method of [<code>CacheMap</code>](#CacheMap)  
-**Returns**: <code>number</code> - The percentage of used memory (0 to 1).  
-<a name="CacheMap+clearMem"></a>
-
-### cacheMap.clearMem()
-Clears the least recently used entries when memory usage exceeds the defined threshold.
-
-**Kind**: instance method of [<code>CacheMap</code>](#CacheMap)  
-<a name="CookieStore"></a>
-
-## CookieStore
-CookieStore class responsible for managing cookies in an object-like format.
-
-**Kind**: global class  
-
-* [CookieStore](#CookieStore)
-    * [new CookieStore([init])](#new_CookieStore_new)
-    * [.cookie](#CookieStore+cookie) ⇒ <code>string</code>
-    * [.cookie](#CookieStore+cookie)
-    * [.delete(name)](#CookieStore+delete)
-    * [.get(name)](#CookieStore+get) ⇒ <code>\*</code>
-    * [.getAll(name)](#CookieStore+getAll) ⇒ <code>Array</code>
-    * [.set(name, [value])](#CookieStore+set)
-
-<a name="new_CookieStore_new"></a>
-
-### new CookieStore([init])
-Creates an instance of CookieStore.
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| [init] | <code>Object</code> | An optional object containing initial cookie values. |
-
-<a name="CookieStore+cookie"></a>
-
-### cookieStore.cookie ⇒ <code>string</code>
-Retrieves the cookie string representing all stored cookies.
-
-**Kind**: instance property of [<code>CookieStore</code>](#CookieStore)  
-**Returns**: <code>string</code> - A string representation of cookies in the format "key=value; key2=value2".  
-<a name="CookieStore+cookie"></a>
-
-### cookieStore.cookie
-Parses and sets cookies from a cookie string or an array of cookie strings.
-
-**Kind**: instance property of [<code>CookieStore</code>](#CookieStore)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| value | <code>string</code> \| <code>Array.&lt;string&gt;</code> | The cookie string or array of cookie strings to parse. |
-
-<a name="CookieStore+delete"></a>
-
-### cookieStore.delete(name)
-Deletes a cookie by its name.
-
-**Kind**: instance method of [<code>CookieStore</code>](#CookieStore)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | The name of the cookie to delete. |
-
-<a name="CookieStore+get"></a>
-
-### cookieStore.get(name) ⇒ <code>\*</code>
-Retrieves a cookie value by its name.
-
-**Kind**: instance method of [<code>CookieStore</code>](#CookieStore)  
-**Returns**: <code>\*</code> - The value of the cookie, or undefined if not found.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | The name of the cookie to retrieve. |
-
-<a name="CookieStore+getAll"></a>
-
-### cookieStore.getAll(name) ⇒ <code>Array</code>
-Retrieves all cookies stored under a specific name.
-
-**Kind**: instance method of [<code>CookieStore</code>](#CookieStore)  
-**Returns**: <code>Array</code> - An array of cookie values matching the specified name.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | The name of the cookies to retrieve. |
-
-<a name="CookieStore+set"></a>
-
-### cookieStore.set(name, [value])
-Sets a cookie with the given name and value.
-
-**Kind**: instance method of [<code>CookieStore</code>](#CookieStore)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> \| <code>Object</code> | The name of the cookie, or an object with { name, value }. |
-| [value] | <code>\*</code> | The value of the cookie (if `name` is a string). |
-
-<a name="File"></a>
-
-## File
-File class provides methods for reading and writing files,
-including support for JSON and compressed (.gz) files.
-
-**Kind**: global class  
-
-* [File](#File)
-    * [.read(filename)](#File.read) ⇒ <code>Buffer</code> \| <code>Object</code> \| <code>string</code>
-    * [.write(filename, data)](#File.write)
-
-<a name="File.read"></a>
-
-### File.read(filename) ⇒ <code>Buffer</code> \| <code>Object</code> \| <code>string</code>
-Reads a file synchronously. If the file is compressed (.gz), it decompresses it.
-If the file is a JSON file, it parses the contents.
-
-**Kind**: static method of [<code>File</code>](#File)  
-**Returns**: <code>Buffer</code> \| <code>Object</code> \| <code>string</code> - The file content, parsed if JSON, decompressed if .gz.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| filename | <code>string</code> | The file path to read. |
-
-<a name="File.write"></a>
-
-### File.write(filename, data)
-Writes data to a file synchronously. Supports JSON serialization and gzip compression.
-Creates the necessary directories if they do not exist.
-
-**Kind**: static method of [<code>File</code>](#File)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| filename | <code>string</code> | The file path to write. |
-| data | <code>Buffer</code> \| <code>Object</code> \| <code>string</code> | The data to write, automatically serialized if JSON. |
-
-<a name="JWT"></a>
-
-## JWT
-JWT class responsible for encoding, decoding, signing, and verifying JSON Web Tokens (JWT).
-
-**Kind**: global class  
-
-* [JWT](#JWT)
-    * [.sign([header], [payload], [secret])](#JWT.sign) ⇒ <code>string</code>
-    * [.verify([token], [secret])](#JWT.verify) ⇒ <code>Object</code>
-    * [.decode([token])](#JWT.decode) ⇒ <code>Object</code>
-
-<a name="JWT.sign"></a>
-
-### JWT.sign([header], [payload], [secret]) ⇒ <code>string</code>
-Signs a payload into a JSON Web Token (JWT) using the specified algorithm and secret.
-
-**Kind**: static method of [<code>JWT</code>](#JWT)  
-**Returns**: <code>string</code> - The signed JWT.  
-**Throws**:
-
-- <code>Error</code> If the algorithm is missing or invalid.
-
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [header] | <code>Object</code> | <code>{}</code> | The JWT header containing metadata like algorithm. |
-| [payload] | <code>Object</code> | <code>{}</code> | The payload containing claims. |
-| [secret] | <code>string</code> | <code>&quot;\&quot;\&quot;&quot;</code> | The secret key used to sign the token. |
-
-<a name="JWT.verify"></a>
-
-### JWT.verify([token], [secret]) ⇒ <code>Object</code>
-Verifies a JSON Web Token (JWT) and checks its validity.
-
-**Kind**: static method of [<code>JWT</code>](#JWT)  
-**Returns**: <code>Object</code> - The decoded payload if the token is valid.  
-**Throws**:
-
-- <code>Error</code> If the token is missing, malformed, expired, or signature verification fails.
-
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [token] | <code>string</code> | <code>&quot;\&quot;\&quot;&quot;</code> | The JWT to verify. |
-| [secret] | <code>string</code> | <code>&quot;\&quot;\&quot;&quot;</code> | The secret key used for verification. |
-
-<a name="JWT.decode"></a>
-
-### JWT.decode([token]) ⇒ <code>Object</code>
-Decodes the header and payload of a JSON Web Token (JWT) without verifying the signature.
-
-**Kind**: static method of [<code>JWT</code>](#JWT)  
-**Returns**: <code>Object</code> - An object containing the decoded header and payload.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [token] | <code>string</code> | <code>&quot;\&quot;\&quot;&quot;</code> | The JWT to decode. |
-
-<a name="OTP"></a>
-
-## OTP
-OTP class provides methods for generating and managing One-Time Passwords (OTP),
-including HOTP, TOTP, random key generation, and OTP authentication URL creation.
-
-**Kind**: global class  
-
-* [OTP](#OTP)
-    * [.hotp(options)](#OTP.hotp) ⇒ <code>string</code>
-    * [.totp(options)](#OTP.totp) ⇒ <code>string</code>
-    * [.randomKey(options)](#OTP.randomKey) ⇒ <code>string</code>
-    * [.otpauth(options)](#OTP.otpauth) ⇒ <code>Object</code>
-
-<a name="OTP.hotp"></a>
-
-### OTP.hotp(options) ⇒ <code>string</code>
-Generates a HMAC-based One-Time Password (HOTP).
-
-**Kind**: static method of [<code>OTP</code>](#OTP)  
-**Returns**: <code>string</code> - The generated HOTP.  
-**See**: https://www.ietf.org/rfc/rfc4226.txt  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| options | <code>Object</code> |  | The parameters for generating HOTP. |
-| options.key | <code>string</code> |  | The secret key used for HOTP generation. |
-| options.counter | <code>number</code> |  | The counter value. |
-| [options.algorithm] | <code>string</code> | <code>&quot;\&quot;sha1\&quot;&quot;</code> | The hash algorithm (sha1, sha256, sha512). |
-| [options.digits] | <code>number</code> | <code>6</code> | The number of digits in the OTP. |
-| [options.encoding] | <code>string</code> | <code>&quot;\&quot;ascii\&quot;&quot;</code> | The encoding of the secret key. |
-
-<a name="OTP.totp"></a>
-
-### OTP.totp(options) ⇒ <code>string</code>
-Generates a Time-based One-Time Password (TOTP).
-
-**Kind**: static method of [<code>OTP</code>](#OTP)  
-**Returns**: <code>string</code> - The generated TOTP.  
-**See**: https://datatracker.ietf.org/doc/html/rfc6238  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| options | <code>Object</code> |  | The parameters for generating TOTP. |
-| options.key | <code>string</code> |  | The secret key used for TOTP generation. |
-| [options.T] | <code>number</code> | <code>Math.floor(Date.now() / 1000)</code> | The current time in seconds. |
-| [options.T0] | <code>number</code> | <code>0</code> | The Unix timestamp that defines the initial counter value. |
-| [options.X] | <code>number</code> | <code>30</code> | The time step in seconds. |
-| [options.algorithm] | <code>string</code> | <code>&quot;\&quot;sha1\&quot;&quot;</code> | The hash algorithm (sha1, sha256, sha512). |
-| [options.digits] | <code>number</code> | <code>6</code> | The number of digits in the OTP. |
-| [options.encoding] | <code>string</code> | <code>&quot;\&quot;ascii\&quot;&quot;</code> | The encoding of the secret key. |
-
-<a name="OTP.randomKey"></a>
-
-### OTP.randomKey(options) ⇒ <code>string</code>
-Generates a random secret key.
-
-**Kind**: static method of [<code>OTP</code>](#OTP)  
-**Returns**: <code>string</code> - The generated secret key.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| options | <code>Object</code> |  | The parameters for key generation. |
-| options.algorithm | <code>string</code> |  | The hash algorithm (sha1, sha256, sha512). |
-| [options.encoding] | <code>string</code> | <code>&quot;\&quot;base32\&quot;&quot;</code> | The encoding of the generated key. |
-
-<a name="OTP.otpauth"></a>
-
-### OTP.otpauth(options) ⇒ <code>Object</code>
-Generates an OTP Authentication URL and corresponding QR code.
-
-**Kind**: static method of [<code>OTP</code>](#OTP)  
-**Returns**: <code>Object</code> - An object containing the OTP URL and a QR code link.  
-**See**: https://github.com/google/google-authenticator/wiki/Key-Uri-Format  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| options | <code>Object</code> |  | The parameters for OTP authentication. |
-| [options.type] | <code>string</code> | <code>&quot;\&quot;totp\&quot;&quot;</code> | The OTP type (totp or hotp). |
-| [options.label] | <code>string</code> | <code>&quot;\&quot;label\&quot;&quot;</code> | The label associated with the OTP. |
-| [options.secret] | <code>string</code> |  | The secret key for OTP generation. |
-| [options.issuer] | <code>string</code> | <code>&quot;\&quot;issuer\&quot;&quot;</code> | The issuer name. |
-| [options.algorithm] | <code>string</code> | <code>&quot;\&quot;sha1\&quot;&quot;</code> | The hash algorithm (sha1, sha256, sha512). |
-| [options.digits] | <code>number</code> | <code>6</code> | The number of digits in the OTP. |
-| [options.counter] | <code>number</code> |  | The counter value for HOTP. |
-| [options.period] | <code>number</code> |  | The time period for TOTP. |
-
-<a name="Router"></a>
-
-## Router
-Router class provides an Express-like routing system for handling HTTP requests.
-
-**Kind**: global class  
-
-* [Router](#Router)
-    * [new Router([config])](#new_Router_new)
-    * _instance_
-        * [.routes](#Router+routes) : <code>Array.&lt;Object&gt;</code>
-        * [.add(method, path, ...middlewares)](#Router+add)
-        * [.use(...args)](#Router+use) ⇒ [<code>Router</code>](#Router)
-        * [.get(...args)](#Router+get) ⇒ [<code>Router</code>](#Router)
-        * [.head(...args)](#Router+head) ⇒ [<code>Router</code>](#Router)
-        * [.options(...args)](#Router+options) ⇒ [<code>Router</code>](#Router)
-        * [.trace(...args)](#Router+trace) ⇒ [<code>Router</code>](#Router)
-        * [.put(...args)](#Router+put) ⇒ [<code>Router</code>](#Router)
-        * [.delete(...args)](#Router+delete) ⇒ [<code>Router</code>](#Router)
-        * [.post(...args)](#Router+post) ⇒ [<code>Router</code>](#Router)
-        * [.patch(...args)](#Router+patch) ⇒ [<code>Router</code>](#Router)
-        * [.connect(...args)](#Router+connect) ⇒ [<code>Router</code>](#Router)
-        * [.request(req, res)](#Router+request)
-        * [.listen(...args)](#Router+listen) ⇒ <code>http.Server</code>
-    * _static_
-        * [.compression()](#Router.compression) ⇒ <code>function</code>
-        * [.cookie()](#Router.cookie) ⇒ <code>function</code>
-        * [.json()](#Router.json) ⇒ <code>function</code>
-        * [.cors([headers])](#Router.cors) ⇒ <code>function</code>
-        * [.security([headers])](#Router.security) ⇒ <code>function</code>
-        * [.rateLimit([options])](#Router.rateLimit) ⇒ <code>function</code>
-        * [.static(dirname)](#Router.static) ⇒ <code>function</code>
-        * [.missing()](#Router.missing) ⇒ <code>function</code>
-        * [.catchAll()](#Router.catchAll) ⇒ <code>function</code>
-
-<a name="new_Router_new"></a>
-
-### new Router([config])
-Creates an instance of Router.
-
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [config] | <code>Object</code> | <code>{}</code> | Configuration options. |
-| [config.requestTimeout] | <code>number</code> | <code>60000</code> | Request timeout in milliseconds. |
-
-<a name="Router+routes"></a>
-
-### router.routes : <code>Array.&lt;Object&gt;</code>
-Stores registered routes.
-
-**Kind**: instance property of [<code>Router</code>](#Router)  
-<a name="Router+add"></a>
-
-### router.add(method, path, ...middlewares)
-Adds a new route to the router.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| method | <code>string</code> | HTTP method (e.g., "GET", "POST"). |
-| path | <code>string</code> \| <code>function</code> | The route path or middleware function. |
-| ...middlewares | <code>function</code> | Middleware functions for handling the request. |
-
-<a name="Router+use"></a>
-
-### router.use(...args) ⇒ [<code>Router</code>](#Router)
-Registers middleware for all HTTP methods.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>function</code> | Middleware functions. |
-
-<a name="Router+get"></a>
-
-### router.get(...args) ⇒ [<code>Router</code>](#Router)
-Registers a GET route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+head"></a>
-
-### router.head(...args) ⇒ [<code>Router</code>](#Router)
-Registers a HEAD route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+options"></a>
-
-### router.options(...args) ⇒ [<code>Router</code>](#Router)
-Registers a OPTIONS route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+trace"></a>
-
-### router.trace(...args) ⇒ [<code>Router</code>](#Router)
-Registers a TRACE route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+put"></a>
-
-### router.put(...args) ⇒ [<code>Router</code>](#Router)
-Registers a PUT route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+delete"></a>
-
-### router.delete(...args) ⇒ [<code>Router</code>](#Router)
-Registers a DELETE route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+post"></a>
-
-### router.post(...args) ⇒ [<code>Router</code>](#Router)
-Registers a POST route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+patch"></a>
-
-### router.patch(...args) ⇒ [<code>Router</code>](#Router)
-Registers a PATCH route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+connect"></a>
-
-### router.connect(...args) ⇒ [<code>Router</code>](#Router)
-Registers a CONNECT route.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: [<code>Router</code>](#Router) - The router instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Path and middleware functions. |
-
-<a name="Router+request"></a>
-
-### router.request(req, res)
-Handles incoming HTTP requests and executes relevant middleware.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| req | <code>http.IncomingMessage</code> | The request object. |
-| res | <code>http.ServerResponse</code> | The response object. |
-
-<a name="Router+listen"></a>
-
-### router.listen(...args) ⇒ <code>http.Server</code>
-Starts an HTTP server and listens for incoming requests.
-
-**Kind**: instance method of [<code>Router</code>](#Router)  
-**Returns**: <code>http.Server</code> - The HTTP server instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ...args | <code>any</code> | Arguments passed to `http.createServer().listen()`. |
-
-<a name="Router.compression"></a>
-
-### Router.compression() ⇒ <code>function</code>
-Middleware to enable compression (gzip, deflate, brotli) for response bodies.
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style middleware function.  
-<a name="Router.cookie"></a>
-
-### Router.cookie() ⇒ <code>function</code>
-Middleware to parse cookies from incoming requests and set cookies in responses.
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style middleware function.  
-<a name="Router.json"></a>
-
-### Router.json() ⇒ <code>function</code>
-Middleware to parse incoming JSON request bodies.
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style middleware function.  
-<a name="Router.cors"></a>
-
-### Router.cors([headers]) ⇒ <code>function</code>
-Middleware to enable CORS (Cross-Origin Resource Sharing).
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style middleware function.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [headers] | <code>Object</code> | <code>{}</code> | Custom headers for CORS. |
-
-<a name="Router.security"></a>
-
-### Router.security([headers]) ⇒ <code>function</code>
-Middleware to apply security headers to responses.
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style middleware function.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [headers] | <code>Object</code> | <code>{}</code> | Additional security headers. |
-
-<a name="Router.rateLimit"></a>
-
-### Router.rateLimit([options]) ⇒ <code>function</code>
-Middleware to implement basic rate limiting.
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style middleware function.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [options] | <code>Object</code> | <code>{}</code> | Rate limit configuration. |
-| [options.timeWindow] | <code>number</code> | <code>60</code> | Time window in seconds. |
-| [options.requestQuota] | <code>number</code> | <code>100</code> | Maximum requests per window. |
-
-<a name="Router.static"></a>
-
-### Router.static(dirname) ⇒ <code>function</code>
-Middleware to serve static files from a specified directory.
-Automatically serves `index.html` if the request targets `/`.
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style middleware function.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| dirname | <code>string</code> | The directory containing static files. |
-
-<a name="Router.missing"></a>
-
-### Router.missing() ⇒ <code>function</code>
-Middleware to handle 404 errors.
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style middleware function.  
-<a name="Router.catchAll"></a>
-
-### Router.catchAll() ⇒ <code>function</code>
-Middleware to handle all uncaught errors.
-
-**Kind**: static method of [<code>Router</code>](#Router)  
-**Returns**: <code>function</code> - Express-style error handler middleware.  
-<a name="Store"></a>
-
-## Store
-Store class provides a proxy-based mechanism for handling data storage,
-supporting automatic persistence and caching.
-
-**Kind**: global class  
-
-* [Store](#Store)
-    * [new Store(target, callback)](#new_Store_new)
-    * _instance_
-        * [.pools](#Store+pools) : [<code>CacheMap</code>](#CacheMap)
-        * [.get(target, property)](#Store+get) ⇒ <code>\*</code>
-        * [.set(target, property, value)](#Store+set) ⇒ <code>boolean</code>
-        * [.deleteProperty(target, property)](#Store+deleteProperty) ⇒ <code>boolean</code>
-    * _static_
-        * [.get(filename)](#Store.get) ⇒ [<code>Store</code>](#Store)
-
-<a name="new_Store_new"></a>
-
-### new Store(target, callback)
-Creates an instance of the Store class.
-
-**Returns**: <code>Proxy</code> - A proxy wrapping the target object.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| target | <code>Object</code> | The target object to be proxied and stored. |
-| callback | <code>function</code> | A callback function triggered on property changes. |
-
-<a name="Store+pools"></a>
-
-### store.pools : [<code>CacheMap</code>](#CacheMap)
-Cache pool for storing active Store instances.
-
-**Kind**: instance property of [<code>Store</code>](#Store)  
-<a name="Store+get"></a>
-
-### store.get(target, property) ⇒ <code>\*</code>
-Retrieves a property from the target object.
-If the property is an object or array, it returns a proxied version.
-
-**Kind**: instance method of [<code>Store</code>](#Store)  
-**Returns**: <code>\*</code> - The retrieved property value.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| target | <code>Object</code> | The target object. |
-| property | <code>string</code> | The property name to retrieve. |
-
-<a name="Store+set"></a>
-
-### store.set(target, property, value) ⇒ <code>boolean</code>
-Sets a property in the target object, triggering the callback.
-Ensures changes are persisted.
-
-**Kind**: instance method of [<code>Store</code>](#Store)  
-**Returns**: <code>boolean</code> - True if the operation is successful.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| target | <code>Object</code> | The target object. |
-| property | <code>string</code> | The property name to set. |
-| value | <code>\*</code> | The new value to assign. |
-
-<a name="Store+deleteProperty"></a>
-
-### store.deleteProperty(target, property) ⇒ <code>boolean</code>
-Deletes a property from the target object, triggering the callback.
-Ensures changes are persisted.
-
-**Kind**: instance method of [<code>Store</code>](#Store)  
-**Returns**: <code>boolean</code> - True if the operation is successful.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| target | <code>Object</code> | The target object. |
-| property | <code>string</code> | The property name to delete. |
-
-<a name="Store.get"></a>
-
-### Store.get(filename) ⇒ [<code>Store</code>](#Store)
-Retrieves a stored instance of the target object linked to the specified filename.
-Automatically reads the file and initializes storage with automatic persistence.
-
-**Kind**: static method of [<code>Store</code>](#Store)  
-**Returns**: [<code>Store</code>](#Store) - The proxied Store instance.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| filename | <code>string</code> | The filename where the store data is stored. |
-
-<a name="WebSocket"></a>
-
-## WebSocket ⇐ <code>EventEmitter</code>
-WebSocket class responsible for managing WebSocket connections, including sending and receiving messages.
-Extends EventEmitter to handle connection events.
-
-**Kind**: global class  
-**Extends**: <code>EventEmitter</code>  
-
-* [WebSocket](#WebSocket) ⇐ <code>EventEmitter</code>
-    * [new WebSocket()](#new_WebSocket_new)
-    * [.upgrade(req, socket, head)](#WebSocket+upgrade)
-    * [.encode(data)](#WebSocket+encode) ⇒ <code>Buffer</code>
-    * [.decode(frame)](#WebSocket+decode) ⇒ <code>string</code> \| <code>Buffer</code> \| <code>null</code>
-
-<a name="new_WebSocket_new"></a>
-
-### new WebSocket()
-Creates an instance of the WebSocket class.
-
-<a name="WebSocket+upgrade"></a>
-
-### webSocket.upgrade(req, socket, head)
-Handles WebSocket upgrade requests and establishes a connection.
-
-**Kind**: instance method of [<code>WebSocket</code>](#WebSocket)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| req | <code>http.IncomingMessage</code> | The HTTP request object. |
-| socket | <code>net.Socket</code> | The network socket between the server and client. |
-| head | <code>Buffer</code> | The first packet of the upgraded stream. |
-
-<a name="WebSocket+encode"></a>
-
-### webSocket.encode(data) ⇒ <code>Buffer</code>
-Encodes data into a WebSocket frame.
-
-**Kind**: instance method of [<code>WebSocket</code>](#WebSocket)  
-**Returns**: <code>Buffer</code> - The encoded WebSocket frame.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| data | <code>string</code> \| <code>Buffer</code> | The data to encode. |
-
-<a name="WebSocket+decode"></a>
-
-### webSocket.decode(frame) ⇒ <code>string</code> \| <code>Buffer</code> \| <code>null</code>
-Decodes a WebSocket frame into data.
-
-**Kind**: instance method of [<code>WebSocket</code>](#WebSocket)  
-**Returns**: <code>string</code> \| <code>Buffer</code> \| <code>null</code> - The decoded data or null if the frame is a close frame.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| frame | <code>Buffer</code> | The WebSocket frame to decode. |
-
-<a name="originalToString"></a>
-
-## originalToString ⇒ <code>string</code>
-Overrides the Buffer.toString method to support Base32 encoding.
-
-**Kind**: global constant  
-**Returns**: <code>string</code> - The encoded string if encoding is Base32, otherwise the original behavior.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| encoding | <code>string</code> | The encoding type. |
-| ...args | <code>any</code> | Additional arguments passed to the original toString method. |
-
-<a name="originalFrom"></a>
-
-## originalFrom ⇒ <code>Buffer</code>
-Overrides the Buffer.from method to support Base32 decoding.
-
-**Kind**: global constant  
-**Returns**: <code>Buffer</code> - The decoded buffer if encoding is Base32, otherwise the original behavior.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| input | <code>string</code> | The Base32 encoded string. |
-| encoding | <code>string</code> | The encoding type. |
-| ...args | <code>any</code> | Additional arguments passed to the original Buffer.from method. |
-
-<a name="fetch"></a>
-
-## fetch([input], [init]) ⇒ <code>Promise.&lt;Response&gt;</code>
-Custom fetch function that supports proxies and cookie management.
-
-**Kind**: global function  
-**Returns**: <code>Promise.&lt;Response&gt;</code> - A promise that resolves with the fetch response.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| [input] | <code>string</code> | <code>&quot;\&quot;\&quot;&quot;</code> | The request URL or resource. |
-| [init] | <code>Object</code> | <code>{}</code> | Additional fetch configuration options. |
-| [init.headers] | <code>Object</code> |  | Request headers. |
-| [init.store] | <code>Object</code> |  | An optional cookie store object for managing cookies. |
+Built with ❤️ by Ridho Prasetya (Ndiing)
 
