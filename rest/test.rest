@@ -28,6 +28,41 @@ GET http://localhost/api
 
 
 ###
+POST http://localhost/api/auth/request
+Content-Type: application/json
+
+{}
+
+###
+POST http://localhost/api/auth/verify
+Content-Type: application/json
+
+{}
+
+###
+POST http://localhost/api/auth/refresh
+Content-Type: application/json
+
+{}
+
+###
+POST http://localhost/api/auth/revoke
+Content-Type: application/json
+
+{}
+
+
+
+
+
+
+
+
+
+
+
+
+###
 POST http://localhost/api/users
 Content-Type: application/json
 

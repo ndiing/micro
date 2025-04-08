@@ -112,6 +112,8 @@ class Router {
         }
         req.query = query;
 
+        res.locals = {};
+
         res.status = (code) => {
             res.statusCode = code;
             return res;
