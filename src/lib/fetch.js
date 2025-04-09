@@ -16,20 +16,31 @@ const fetch = async (input = "", init = {}) => {
     }
 
     init = {
+        ...(process.env.HTTP_PROXY && { dispatcher: new ProxyAgent(process.env.HTTP_PROXY) }),
+        ...init,
         headers: {
             ...init.headers,
         },
-        ...(process.env.HTTP_PROXY && { dispatcher: new ProxyAgent(process.env.HTTP_PROXY) }),
-        ...init,
     };
-    const { store } = init;
+    const { store, base = "", query = {} } = init;
+
+    const url = new URL(input, base);
+    for (const name in query) {
+        const value = query[name];
+        if (value === undefined || value === null) {
+            continue;
+        }
+
+        url.searchParams.set(name, value);
+    }
+
     if (store) {
         const cookie = store.cookieStore.cookie;
         if (cookie) {
             init.headers.Cookie = cookie;
         }
     }
-    const response = await globalFetch(input, init);
+    const response = await globalFetch(url.toString(), init);
     const setCookie = response.headers.getSetCookie();
     if (setCookie.length && store) {
         store.cookieStore.cookie = setCookie;

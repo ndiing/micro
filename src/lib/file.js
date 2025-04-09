@@ -38,7 +38,9 @@ class File {
         try {
             fs.readdirSync(dirname);
         } catch (error) {
-            fs.mkdirSync(dirname);
+            fs.mkdirSync(dirname,{
+                recursive:true
+            });
         }
         if (/\b\.json\b/.test(filename)) {
             data = JSON.stringify(data);
