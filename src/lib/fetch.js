@@ -3,9 +3,11 @@ const { setGlobalDispatcher, ProxyAgent } = require("undici");
 const globalFetch = global.fetch;
 
 /**
- * Custom fetch function that supports proxies and cookie management.
+ * Custom fetch function that supports proxies, query parameters, and cookie management.
  * @param {string} [input=""] - The request URL or resource.
  * @param {Object} [init={}] - Additional fetch configuration options.
+ * @param {string} [init.base] - The base URL used to resolve relative paths.
+ * @param {Object.<string, string>} [init.query] - Query parameters to append to the URL.
  * @param {Object} [init.headers] - Request headers.
  * @param {Object} [init.store] - An optional cookie store object for managing cookies.
  * @returns {Promise<Response>} A promise that resolves with the fetch response.
@@ -17,16 +19,18 @@ const fetch = async (input = "", init = {}) => {
 
     init = {
         ...(process.env.HTTP_PROXY && { dispatcher: new ProxyAgent(process.env.HTTP_PROXY) }),
+        store: undefined,
+        base: undefined,
+        query: {},
         ...init,
         headers: {
             ...init.headers,
         },
     };
-    const { store, base = "", query = {} } = init;
 
-    const url = new URL(input, base);
-    for (const name in query) {
-        const value = query[name];
+    const url = new URL(input, init.base);
+    for (const name in init.query) {
+        const value = init.query[name];
         if (value === undefined || value === null) {
             continue;
         }
