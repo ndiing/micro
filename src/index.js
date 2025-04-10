@@ -5,8 +5,12 @@ const http = require("http");
 const https = require("https");
 const path = require("path");
 const Router = require("./lib/router.js");
-const { authorization } = require("./api/auth/middleware.js");
 const WebSocket = require("./lib/web-socket.js");
+const { authorization } = require("./api/auth/middleware.js");
+
+if (process.env.NODE_ENV === "development") {
+    require("./lib/index.js");
+}
 
 const app = new Router();
 
@@ -19,8 +23,6 @@ app.use(
     Router.rateLimit([
         { method: "POST", path: "/api/auth/request", timeWindow: 60, requestQuota: 3 },
         { method: "POST", path: "/api/auth/verify", timeWindow: 60, requestQuota: 3 },
-        { method: "POST", path: "/api/auth/refresh", timeWindow: 60, requestQuota: 100 },
-        { method: "POST", path: "/api/auth/revoke", timeWindow: 60, requestQuota: 100 },
     ]),
 );
 app.use(

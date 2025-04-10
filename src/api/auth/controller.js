@@ -1,6 +1,7 @@
 const OTP = require("../../lib/otp.js");
 const JWT = require("../../lib/jwt.js");
 const CacheMap = require("../../lib/cache-map.js");
+require('./schema.js')
 
 const requestCacheMap = new CacheMap();
 
