@@ -1,24 +1,75 @@
 const crypto = require("crypto");
 
+/**
+ * Signer class provides cryptographic signing functions for various algorithms.
+ */
 class Signer {
+    /**
+     * Signs data using HMAC with SHA-256.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {string|Buffer} key - The secret key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static HS256(data, key) {
         return crypto.createHmac("sha256", key).update(data).digest("base64url");
     }
+
+    /**
+     * Signs data using HMAC with SHA-384.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {string|Buffer} key - The secret key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static HS384(data, key) {
         return crypto.createHmac("sha384", key).update(data).digest("base64url");
     }
+
+    /**
+     * Signs data using HMAC with SHA-512.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {string|Buffer} key - The secret key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static HS512(data, key) {
         return crypto.createHmac("sha512", key).update(data).digest("base64url");
     }
+
+    /**
+     * Signs data using RSA with SHA-256.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static RS256(data, key) {
         return crypto.sign("sha256", data, key).toString("base64url");
     }
+
+    /**
+     * Signs data using RSA with SHA-384.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static RS384(data, key) {
         return crypto.sign("sha384", data, key).toString("base64url");
     }
+
+    /**
+     * Signs data using RSA with SHA-512.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static RS512(data, key) {
         return crypto.sign("sha512", data, key).toString("base64url");
     }
+
+    /**
+     * Signs data using ECDSA with SHA-256.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The EC private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static ES256(data, key) {
         return crypto
             .sign("sha256", data, {
@@ -27,6 +78,13 @@ class Signer {
             })
             .toString("base64url");
     }
+
+    /**
+     * Signs data using ECDSA with SHA-384.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The EC private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static ES384(data, key) {
         return crypto
             .sign("sha384", data, {
@@ -35,6 +93,13 @@ class Signer {
             })
             .toString("base64url");
     }
+
+    /**
+     * Signs data using ECDSA with SHA-512.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The EC private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static ES512(data, key) {
         return crypto
             .sign("sha512", data, {
@@ -43,6 +108,13 @@ class Signer {
             })
             .toString("base64url");
     }
+
+    /**
+     * Signs data using RSA-PSS with SHA-256.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static PS256(data, key) {
         return crypto
             .sign("sha256", data, {
@@ -52,6 +124,13 @@ class Signer {
             })
             .toString("base64url");
     }
+
+    /**
+     * Signs data using RSA-PSS with SHA-384.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static PS384(data, key) {
         return crypto
             .sign("sha384", data, {
@@ -61,6 +140,13 @@ class Signer {
             })
             .toString("base64url");
     }
+
+    /**
+     * Signs data using RSA-PSS with SHA-512.
+     * @param {string|Buffer} data - The data to sign.
+     * @param {crypto.KeyObject|string|Buffer} key - The private key.
+     * @returns {string} The Base64URL-encoded signature.
+     */
     static PS512(data, key) {
         return crypto
             .sign("sha512", data, {
@@ -72,99 +158,143 @@ class Signer {
     }
 }
 
+/**
+ * Verifier class provides cryptographic verification functions for various algorithms.
+ */
 class Verifier {
+    /**
+     * Verifies a signature using HMAC with SHA-256.
+     * @param {string|Buffer} data - The original data.
+     * @param {string|Buffer} key - The secret key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static HS256(data, key, signature) {
         const expected = crypto.createHmac("sha256", key).update(data).digest();
-
         return crypto.timingSafeEqual(Buffer.from(signature, "base64url"), expected);
     }
+
+    /**
+     * Verifies a signature using HMAC with SHA-384.
+     * @param {string|Buffer} data - The original data.
+     * @param {string|Buffer} key - The secret key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static HS384(data, key, signature) {
         const expected = crypto.createHmac("sha384", key).update(data).digest();
-
         return crypto.timingSafeEqual(Buffer.from(signature, "base64url"), expected);
     }
+
+    /**
+     * Verifies a signature using HMAC with SHA-512.
+     * @param {string|Buffer} data - The original data.
+     * @param {string|Buffer} key - The secret key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static HS512(data, key, signature) {
         const expected = crypto.createHmac("sha512", key).update(data).digest();
-
         return crypto.timingSafeEqual(Buffer.from(signature, "base64url"), expected);
     }
+
+    /**
+     * Verifies a signature using RSA with SHA-256.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static RS256(data, key, signature) {
         return crypto.verify("sha256", data, key, Buffer.from(signature, "base64url"));
     }
+
+    /**
+     * Verifies a signature using RSA with SHA-384.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static RS384(data, key, signature) {
         return crypto.verify("sha384", data, key, Buffer.from(signature, "base64url"));
     }
+
+    /**
+     * Verifies a signature using RSA with SHA-512.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static RS512(data, key, signature) {
         return crypto.verify("sha512", data, key, Buffer.from(signature, "base64url"));
     }
+
+    /**
+     * Verifies a signature using ECDSA with SHA-256.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The EC public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static ES256(data, key, signature) {
-        return crypto.verify(
-            "sha256",
-            data,
-            {
-                key,
-                dsaEncoding: "ieee-p1363",
-            },
-            Buffer.from(signature, "base64url"),
-        );
+        return crypto.verify("sha256", data, { key, dsaEncoding: "ieee-p1363" }, Buffer.from(signature, "base64url"));
     }
+
+    /**
+     * Verifies a signature using ECDSA with SHA-384.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The EC public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static ES384(data, key, signature) {
-        return crypto.verify(
-            "sha384",
-            data,
-            {
-                key,
-                dsaEncoding: "ieee-p1363",
-            },
-            Buffer.from(signature, "base64url"),
-        );
+        return crypto.verify("sha384", data, { key, dsaEncoding: "ieee-p1363" }, Buffer.from(signature, "base64url"));
     }
+
+    /**
+     * Verifies a signature using ECDSA with SHA-512.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The EC public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static ES512(data, key, signature) {
-        return crypto.verify(
-            "sha512",
-            data,
-            {
-                key,
-                dsaEncoding: "ieee-p1363",
-            },
-            Buffer.from(signature, "base64url"),
-        );
+        return crypto.verify("sha512", data, { key, dsaEncoding: "ieee-p1363" }, Buffer.from(signature, "base64url"));
     }
+
+    /**
+     * Verifies a signature using RSA-PSS with SHA-256.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static PS256(data, key, signature) {
-        return crypto.verify(
-            "sha256",
-            data,
-            {
-                key,
-                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
-                saltLength: 32,
-            },
-            Buffer.from(signature, "base64url"),
-        );
+        return crypto.verify("sha256", data, { key, padding: crypto.constants.RSA_PKCS1_PSS_PADDING, saltLength: 32 }, Buffer.from(signature, "base64url"));
     }
+
+    /**
+     * Verifies a signature using RSA-PSS with SHA-384.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static PS384(data, key, signature) {
-        return crypto.verify(
-            "sha384",
-            data,
-            {
-                key,
-                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
-                saltLength: 48,
-            },
-            Buffer.from(signature, "base64url"),
-        );
+        return crypto.verify("sha384", data, { key, padding: crypto.constants.RSA_PKCS1_PSS_PADDING, saltLength: 48 }, Buffer.from(signature, "base64url"));
     }
+
+    /**
+     * Verifies a signature using RSA-PSS with SHA-512.
+     * @param {string|Buffer} data - The original data.
+     * @param {crypto.KeyObject|string|Buffer} key - The public key.
+     * @param {string} signature - The Base64URL-encoded signature to verify.
+     * @returns {boolean} True if verification is successful, otherwise false.
+     */
     static PS512(data, key, signature) {
-        return crypto.verify(
-            "sha512",
-            data,
-            {
-                key,
-                padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
-                saltLength: 64,
-            },
-            Buffer.from(signature, "base64url"),
-        );
+        return crypto.verify("sha512", data, { key, padding: crypto.constants.RSA_PKCS1_PSS_PADDING, saltLength: 64 }, Buffer.from(signature, "base64url"));
     }
 }
 

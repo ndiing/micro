@@ -1,109 +1,206 @@
 # Micro Framework
 
-Micro Framework adalah framework HTTP berbasis Node.js yang ringan, modular, dan fleksibel. Dirancang khusus untuk kebutuhan API modern seperti fintech dan ERP, framework ini mendukung arsitektur HMVC dan dapat dikembangkan untuk pendekatan Microservice.
+Micro Framework adalah framework ringan dan fleksibel yang dirancang untuk pengembangan aplikasi backend menggunakan Node.js. Framework ini memiliki berbagai fitur untuk membantu Anda dalam menangani routing, middleware, pengelolaan file, validasi, autentikasi, dan banyak lagi.
 
 ## Fitur Utama
 
-- **Router Modular**: Mendukung nested router, dynamic params (`:param`), wildcard route (`*`), dan semua HTTP method.
-- **Middleware**: Mendukung chaining async/await, dengan middleware seperti JSON parser, cookie handler, CORS, security headers, compression, rate limiter, error handler, dll.
-- **Autentikasi**: Mendukung JWT dan OTP (HOTP/TOTP) dengan validasi dan otorisasi berbasis role.
-- **Validasi**: Skema validasi fleksibel berbasis class `Validation`, dengan konversi dan pemeriksaan tipe otomatis.
-- **Fetch API Custom**: Wrapper untuk `undici.fetch` dengan dukungan proxy, cookie, dan penyimpanan data sementara.
-- **WebSocket Custom**: Implementasi WebSocket dari nol dengan manajemen client dan event dasar.
-- **Static File Handler**: Middleware untuk melayani file statis dari direktori tertentu.
-- **Struktur Modular**: Menggunakan pola seperti HMVC dengan pembagian `controller`, `model`, `middleware`, dan `schema` (opsional).
+- **Routing**: Memudahkan pengelolaan rute HTTP seperti GET, POST, PUT, dan DELETE.
+- **Middleware**: Dukungan penuh untuk middleware seperti CORS, pengolahan JSON, dan rate limiting.
+- **Validasi**: Memudahkan validasi dan konversi data input menggunakan skema berbasis tipe data.
+- **Pengelolaan File**: Membaca dan menulis file, termasuk kompresi dan deserialisasi JSON.
+- **JWT & OTP**: Mendukung pembuatan dan verifikasi JSON Web Tokens (JWT) serta One-Time Password (OTP).
+- **WebSocket**: Menyediakan dukungan penuh untuk komunikasi WebSocket.
+- **Cookie Store**: Pengelolaan cookie secara otomatis di dalam aplikasi.
 
-## Struktur Folder
+## Instalasi
 
-```
+1. **Clone Repositori**
+
+   Anda dapat mengunduh kode sumber framework ini dengan cara meng-clone repositori:
+
+   <pre>
+   git clone https://github.com/username/micro-framework.git
+   cd micro-framework
+   </pre>
+
+2. **Instalasi Dependensi**
+
+   Setelah meng-clone repositori, instal dependensi menggunakan npm:
+
+   <pre>
+   npm install
+   </pre>
+
+## Struktur Proyek
+
+<pre>
 C:.
-├── data                  # Data lokal seperti session/token
-├── dist                  # Build output (jika diperlukan)
-├── rest                  # File REST client untuk testing API
-├── src
-│   ├── api
-│   │   ├── auth          # Modul otentikasi
-│   │   │   ├── controller.js
-│   │   │   ├── index.js
-│   │   │   ├── middleware.js
-│   │   │   └── model.js
-│   │   └── main          # Modul utama API
-│   │       └── index.js
-│   └── lib               # Pustaka internal (core engine dan helper)
-│       ├── base32.js
-│       ├── cache-map.js
-│       ├── cookie-store.js
-│       ├── crash.js
-│       ├── env.js
-│       ├── fetch.js
-│       ├── file.js
-│       ├── jwt.js
-│       ├── otp.js
-│       ├── router.js
-│       ├── store.js
-│       ├── util.js
-│       ├── validation.js
-│       └── web-socket.js
-├── test                  # Unit test untuk tiap modul
-├── .gitattributes
-├── .gitignore
-├── .prettierrc
-├── DOCS.md
-├── env.json
-├── LICENSE
-├── nodemon.json
-├── package-lock.json
-├── package.json
-└── README.md             # Dokumentasi proyek ini
-```
+│   .gitattributes
+│   .gitignore
+│   README.md
+│   package.json
+│   ...
+├───data
+│       session.json
+│       tokopedia.json.gz
+│
+├───dist
+│       index.html
+│       index.js
+│
+├───src
+│   ├───api
+│   │   ├───auth
+│   │   │       controller.js
+│   │   │       model.js
+│   │   └───main
+│   │           index.js
+│   └───lib
+│       ├───base32.js
+│       ├───jwt.js
+│       └───router.js
+└───test
+        cache-map.js
+        jwt.js
+        router.js
+</pre>
 
-## Contoh Rute Modular
+### Penjelasan Struktur
 
-```js
-// src/api/auth/index.js
-const { router } = require("../../lib/router");
-const controller = require("./controller");
-const middleware = require("./middleware");
+- **src/api**: Menyimpan kode untuk API, termasuk controller, model, dan schema.
+- **src/lib**: Menyimpan utilitas dan modul tambahan seperti pengelolaan JWT, file, dan routing.
+- **test**: Berisi pengujian unit untuk berbagai modul framework.
 
-router.post("/login", controller.login);
-router.get("/me", middleware.authorization("user"), controller.me);
+## Penggunaan Dasar
 
-module.exports = router;
-```
+### Membuat Server HTTP
 
-## Validasi Skema
+Untuk memulai, Anda hanya perlu mengimpor framework dan membuat server HTTP:
 
-```js
+<pre>
+const MicroFramework = require("micro-framework");
+
+const app = new MicroFramework();
+
+app.get("/", (req, res) => {
+    res.send("Hello, World!");
+});
+
+app.listen(3000, () => {
+    console.log("Server berjalan di http://localhost:3000");
+});
+</pre>
+
+### Menambahkan Middleware
+
+Middleware dapat digunakan untuk berbagai kebutuhan seperti autentikasi, logging, atau validasi. Berikut adalah contoh middleware untuk menangani JSON:
+
+<pre>
+app.use((req, res, next) => {
+    if (req.headers["content-type"] === "application/json") {
+        req.body = JSON.parse(req.body);
+    }
+    next();
+});
+</pre>
+
+### Routing
+
+Menambahkan rute baru untuk menangani permintaan HTTP:
+
+<pre>
+app.get("/user/:id", (req, res) => {
+    const userId = req.params.id;
+    res.send(`User ID: ${userId}`);
+});
+</pre>
+
+## Fitur Lainnya
+
+### Pengelolaan File
+
+Framework ini menyediakan cara mudah untuk membaca dan menulis file, termasuk dukungan untuk file JSON dan kompresi.
+
+#### Membaca File JSON
+
+<pre>
+const File = require("micro-framework/lib/file");
+
+File.read("./data/session.json").then(data => {
+    console.log(data);
+});
+</pre>
+
+#### Menulis File JSON
+
+<pre>
+const data = { session: "active" };
+
+File.write("./data/session.json", data);
+</pre>
+
+### Validasi Data
+
+Framework ini menyediakan kelas `Validation` untuk memvalidasi data berdasarkan skema yang Anda tentukan.
+
+<pre>
+const Validation = require("micro-framework/lib/validation");
+
 const schema = {
-  email: {
-    type: "string",
-    required: true,
-    pattern: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
-  },
-  password: {
-    type: "string",
-    required: true,
-    minLength: 6,
-  },
+    username: "string",
+    age: "number",
 };
 
-const validator = new Validation(schema);
-const { result, errors } = validator.validate(req.body);
-```
+const result = Validation.validate({ username: "John", age: 25 }, schema);
 
-## Rencana Pengembangan
+if (result.errors.length > 0) {
+    console.log("Terjadi kesalahan dalam data:", result.errors);
+} else {
+    console.log("Data valid!");
+}
+</pre>
 
-- [ ] Integrasi database native (ORM ringan)
-- [ ] Dokumentasi Swagger otomatis
-- [ ] Command Line Interface (CLI) untuk generate modul
-- [ ] Middleware request timeout dan retry
-- [ ] Modul business logic terpisah dari controller (opsional)
-- [ ] Integrasi testing otomatis (Jest, Supertest, dll)
+### Autentikasi JWT
+
+Framework ini mendukung pembuatan dan verifikasi JSON Web Tokens (JWT):
+
+#### Membuat JWT
+
+<pre>
+const JWT = require("micro-framework/lib/jwt");
+
+const payload = { userId: 123 };
+const secret = "mysecretkey";
+
+const token = JWT.sign(payload, secret);
+console.log("JWT Token:", token);
+</pre>
+
+#### Verifikasi JWT
+
+<pre>
+const decoded = JWT.verify(token, secret);
+console.log("Decoded Payload:", decoded);
+</pre>
+
+## Pengujian
+
+Framework ini dilengkapi dengan pengujian unit menggunakan modul yang terdapat di dalam folder `test`. Anda dapat menjalankan pengujian menggunakan Jest atau framework pengujian lainnya.
+
+Untuk menjalankan pengujian, gunakan perintah berikut:
+
+<pre>
+npm test
+</pre>
+
+## Kontribusi
+
+Kami sangat menghargai kontribusi dari komunitas. Jika Anda memiliki ide atau perbaikan, harap buka issue atau kirimkan pull request ke repositori ini.
 
 ## Lisensi
 
-MIT License
+Micro Framework dirilis di bawah lisensi MIT. Lihat file [LICENSE](LICENSE) untuk informasi lebih lanjut.
 
 ---
 
-> Dibangun dengan semangat by Ndiing ⚡
+Jika Anda memiliki pertanyaan atau ingin mempelajari lebih lanjut, silakan buka dokumentasi atau ajukan pertanyaan melalui issue di repositori ini.

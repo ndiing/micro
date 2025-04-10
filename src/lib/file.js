@@ -38,8 +38,8 @@ class File {
         try {
             fs.readdirSync(dirname);
         } catch (error) {
-            fs.mkdirSync(dirname,{
-                recursive:true
+            fs.mkdirSync(dirname, {
+                recursive: true,
             });
         }
         if (/\b\.json\b/.test(filename)) {

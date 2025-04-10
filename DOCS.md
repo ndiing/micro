@@ -15,6 +15,12 @@ Automatically clears least recently used entries when memory usage exceeds the d
 <dd><p>File class provides methods for reading and writing files,
 including support for JSON and compressed (.gz) files.</p>
 </dd>
+<dt><a href="#Signer">Signer</a></dt>
+<dd><p>Signer class provides cryptographic signing functions for various algorithms.</p>
+</dd>
+<dt><a href="#Verifier">Verifier</a></dt>
+<dd><p>Verifier class provides cryptographic verification functions for various algorithms.</p>
+</dd>
 <dt><a href="#JWT">JWT</a></dt>
 <dd><p>JWT class responsible for encoding, decoding, signing, and verifying JSON Web Tokens (JWT).</p>
 </dd>
@@ -59,7 +65,7 @@ Extends EventEmitter to handle connection events.</p>
 
 <dl>
 <dt><a href="#fetch">fetch([input], [init])</a> ⇒ <code>Promise.&lt;Response&gt;</code></dt>
-<dd><p>Custom fetch function that supports proxies and cookie management.</p>
+<dd><p>Custom fetch function that supports proxies, query parameters, and cookie management.</p>
 </dd>
 </dl>
 
@@ -338,6 +344,372 @@ Creates the necessary directories if they do not exist.
 | --- | --- | --- |
 | filename | <code>string</code> | The file path to write. |
 | data | <code>Buffer</code> \| <code>Object</code> \| <code>string</code> | The data to write, automatically serialized if JSON. |
+
+<a name="Signer"></a>
+
+## Signer
+Signer class provides cryptographic signing functions for various algorithms.
+
+**Kind**: global class  
+
+* [Signer](#Signer)
+    * [.HS256(data, key)](#Signer.HS256) ⇒ <code>string</code>
+    * [.HS384(data, key)](#Signer.HS384) ⇒ <code>string</code>
+    * [.HS512(data, key)](#Signer.HS512) ⇒ <code>string</code>
+    * [.RS256(data, key)](#Signer.RS256) ⇒ <code>string</code>
+    * [.RS384(data, key)](#Signer.RS384) ⇒ <code>string</code>
+    * [.RS512(data, key)](#Signer.RS512) ⇒ <code>string</code>
+    * [.ES256(data, key)](#Signer.ES256) ⇒ <code>string</code>
+    * [.ES384(data, key)](#Signer.ES384) ⇒ <code>string</code>
+    * [.ES512(data, key)](#Signer.ES512) ⇒ <code>string</code>
+    * [.PS256(data, key)](#Signer.PS256) ⇒ <code>string</code>
+    * [.PS384(data, key)](#Signer.PS384) ⇒ <code>string</code>
+    * [.PS512(data, key)](#Signer.PS512) ⇒ <code>string</code>
+
+<a name="Signer.HS256"></a>
+
+### Signer.HS256(data, key) ⇒ <code>string</code>
+Signs data using HMAC with SHA-256.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>string</code> \| <code>Buffer</code> | The secret key. |
+
+<a name="Signer.HS384"></a>
+
+### Signer.HS384(data, key) ⇒ <code>string</code>
+Signs data using HMAC with SHA-384.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>string</code> \| <code>Buffer</code> | The secret key. |
+
+<a name="Signer.HS512"></a>
+
+### Signer.HS512(data, key) ⇒ <code>string</code>
+Signs data using HMAC with SHA-512.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>string</code> \| <code>Buffer</code> | The secret key. |
+
+<a name="Signer.RS256"></a>
+
+### Signer.RS256(data, key) ⇒ <code>string</code>
+Signs data using RSA with SHA-256.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The private key. |
+
+<a name="Signer.RS384"></a>
+
+### Signer.RS384(data, key) ⇒ <code>string</code>
+Signs data using RSA with SHA-384.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The private key. |
+
+<a name="Signer.RS512"></a>
+
+### Signer.RS512(data, key) ⇒ <code>string</code>
+Signs data using RSA with SHA-512.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The private key. |
+
+<a name="Signer.ES256"></a>
+
+### Signer.ES256(data, key) ⇒ <code>string</code>
+Signs data using ECDSA with SHA-256.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The EC private key. |
+
+<a name="Signer.ES384"></a>
+
+### Signer.ES384(data, key) ⇒ <code>string</code>
+Signs data using ECDSA with SHA-384.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The EC private key. |
+
+<a name="Signer.ES512"></a>
+
+### Signer.ES512(data, key) ⇒ <code>string</code>
+Signs data using ECDSA with SHA-512.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The EC private key. |
+
+<a name="Signer.PS256"></a>
+
+### Signer.PS256(data, key) ⇒ <code>string</code>
+Signs data using RSA-PSS with SHA-256.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The private key. |
+
+<a name="Signer.PS384"></a>
+
+### Signer.PS384(data, key) ⇒ <code>string</code>
+Signs data using RSA-PSS with SHA-384.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The private key. |
+
+<a name="Signer.PS512"></a>
+
+### Signer.PS512(data, key) ⇒ <code>string</code>
+Signs data using RSA-PSS with SHA-512.
+
+**Kind**: static method of [<code>Signer</code>](#Signer)  
+**Returns**: <code>string</code> - The Base64URL-encoded signature.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The data to sign. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The private key. |
+
+<a name="Verifier"></a>
+
+## Verifier
+Verifier class provides cryptographic verification functions for various algorithms.
+
+**Kind**: global class  
+
+* [Verifier](#Verifier)
+    * [.HS256(data, key, signature)](#Verifier.HS256) ⇒ <code>boolean</code>
+    * [.HS384(data, key, signature)](#Verifier.HS384) ⇒ <code>boolean</code>
+    * [.HS512(data, key, signature)](#Verifier.HS512) ⇒ <code>boolean</code>
+    * [.RS256(data, key, signature)](#Verifier.RS256) ⇒ <code>boolean</code>
+    * [.RS384(data, key, signature)](#Verifier.RS384) ⇒ <code>boolean</code>
+    * [.RS512(data, key, signature)](#Verifier.RS512) ⇒ <code>boolean</code>
+    * [.ES256(data, key, signature)](#Verifier.ES256) ⇒ <code>boolean</code>
+    * [.ES384(data, key, signature)](#Verifier.ES384) ⇒ <code>boolean</code>
+    * [.ES512(data, key, signature)](#Verifier.ES512) ⇒ <code>boolean</code>
+    * [.PS256(data, key, signature)](#Verifier.PS256) ⇒ <code>boolean</code>
+    * [.PS384(data, key, signature)](#Verifier.PS384) ⇒ <code>boolean</code>
+    * [.PS512(data, key, signature)](#Verifier.PS512) ⇒ <code>boolean</code>
+
+<a name="Verifier.HS256"></a>
+
+### Verifier.HS256(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using HMAC with SHA-256.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>string</code> \| <code>Buffer</code> | The secret key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.HS384"></a>
+
+### Verifier.HS384(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using HMAC with SHA-384.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>string</code> \| <code>Buffer</code> | The secret key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.HS512"></a>
+
+### Verifier.HS512(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using HMAC with SHA-512.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>string</code> \| <code>Buffer</code> | The secret key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.RS256"></a>
+
+### Verifier.RS256(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using RSA with SHA-256.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.RS384"></a>
+
+### Verifier.RS384(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using RSA with SHA-384.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.RS512"></a>
+
+### Verifier.RS512(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using RSA with SHA-512.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.ES256"></a>
+
+### Verifier.ES256(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using ECDSA with SHA-256.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The EC public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.ES384"></a>
+
+### Verifier.ES384(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using ECDSA with SHA-384.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The EC public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.ES512"></a>
+
+### Verifier.ES512(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using ECDSA with SHA-512.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The EC public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.PS256"></a>
+
+### Verifier.PS256(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using RSA-PSS with SHA-256.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.PS384"></a>
+
+### Verifier.PS384(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using RSA-PSS with SHA-384.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
+
+<a name="Verifier.PS512"></a>
+
+### Verifier.PS512(data, key, signature) ⇒ <code>boolean</code>
+Verifies a signature using RSA-PSS with SHA-512.
+
+**Kind**: static method of [<code>Verifier</code>](#Verifier)  
+**Returns**: <code>boolean</code> - True if verification is successful, otherwise false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Buffer</code> | The original data. |
+| key | <code>crypto.KeyObject</code> \| <code>string</code> \| <code>Buffer</code> | The public key. |
+| signature | <code>string</code> | The Base64URL-encoded signature to verify. |
 
 <a name="JWT"></a>
 
@@ -1122,7 +1494,7 @@ Overrides the Buffer.from method to support Base32 decoding.
 <a name="fetch"></a>
 
 ## fetch([input], [init]) ⇒ <code>Promise.&lt;Response&gt;</code>
-Custom fetch function that supports proxies and cookie management.
+Custom fetch function that supports proxies, query parameters, and cookie management.
 
 **Kind**: global function  
 **Returns**: <code>Promise.&lt;Response&gt;</code> - A promise that resolves with the fetch response.  
@@ -1131,6 +1503,8 @@ Custom fetch function that supports proxies and cookie management.
 | --- | --- | --- | --- |
 | [input] | <code>string</code> | <code>&quot;\&quot;\&quot;&quot;</code> | The request URL or resource. |
 | [init] | <code>Object</code> | <code>{}</code> | Additional fetch configuration options. |
+| [init.base] | <code>string</code> |  | The base URL used to resolve relative paths. |
+| [init.query] | <code>Object.&lt;string, string&gt;</code> |  | Query parameters to append to the URL. |
 | [init.headers] | <code>Object</code> |  | Request headers. |
 | [init.store] | <code>Object</code> |  | An optional cookie store object for managing cookies. |
 

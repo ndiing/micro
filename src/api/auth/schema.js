@@ -1,1 +1,1 @@
-const Validation = require('../../lib/validation.js')
+const Validation = require("../../lib/validation.js");
