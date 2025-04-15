@@ -18,36 +18,45 @@ const fetch = async (input = "", init = {}) => {
     }
 
     init = {
-        ...(process.env.HTTP_PROXY && { dispatcher: new ProxyAgent(process.env.HTTP_PROXY) }),
-        store: undefined,
-        base: undefined,
-        query: {},
         ...init,
+        ...(process.env.HTTP_PROXY && { dispatcher: new ProxyAgent(process.env.HTTP_PROXY) }),
         headers: {
             ...init.headers,
         },
     };
 
-    const url = new URL(input, init.base);
-    for (const name in init.query) {
-        const value = init.query[name];
-        if (value === undefined || value === null) {
-            continue;
-        }
+    if(/^http\:/.test((init.base||input))){
+        init.dispatcher=undefined
+    }   
 
-        url.searchParams.set(name, value);
+    if(typeof init.params==='object'&&Object.keys(init.params).length){
+        input=input.replace(/\:(\w+)/g,($,$1) => init.params[$1])
     }
 
-    if (store) {
-        const cookie = store.cookieStore.cookie;
+    const url = new URL(input, init.base);
+
+    if(typeof init.query==='object'&&Object.keys(init.query).length){
+        for (const name in init.query) {
+            const value = init.query[name];
+            if (value === undefined || value === null) {
+                continue;
+            }
+    
+            url.searchParams.set(name, value);
+        }
+    }
+
+
+    if (init.store) {
+        const cookie = init.store.cookieStore.cookie;
         if (cookie) {
             init.headers.Cookie = cookie;
         }
     }
     const response = await globalFetch(url.toString(), init);
     const setCookie = response.headers.getSetCookie();
-    if (setCookie.length && store) {
-        store.cookieStore.cookie = setCookie;
+    if (setCookie.length && init.store) {
+        init.store.cookieStore.cookie = setCookie;
     }
     return response;
 };
