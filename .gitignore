@@ -129,5 +129,3 @@ out
 .yarn/install-state.gz
 .pnp.*
 
-data
-dev
