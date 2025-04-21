@@ -131,3 +131,62 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost/api/blogs/1
+
+
+
+
+###
+GET http://localhost/api/test/providers
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+
+###
+GET http://localhost/api/test/products
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+
+###
+GET http://localhost/api/test/account
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+
+###
+GET http://localhost/api/test/balance
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+
+###
+POST http://localhost/api/test/topup
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+Content-Type: application/json
+
+{
+    "amount":1000000
+}
+
+###
+POST http://localhost/api/test/inquiry
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+Content-Type: application/json
+
+{
+    "transaction_id":"8df5a343-c17f-4529-ad77-3c406be5aed6",
+    "product_id":"plnc",
+    "customer_number":"0147025803690147"
+}
+
+###
+POST http://localhost/api/test/purchase
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+Content-Type: application/json
+
+{
+    "transaction_id":"8df5a343-c17f-4529-ad77-3c406be5aed6",
+    "product_id":"xl5",
+    "customer_number":"6281935155404"
+}
+
+###
+GET http://localhost/api/test/transactions
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+
+###
+GET http://localhost/api/test/transactions/8df5a343-c17f-4529-ad77-3c406be5aed6
+Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
+
