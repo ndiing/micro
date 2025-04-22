@@ -35,6 +35,12 @@ including HOTP, TOTP, random key generation, and OTP authentication URL creation
 <dd><p>Store class provides a proxy-based mechanism for handling data storage,
 supporting automatic persistence and caching.</p>
 </dd>
+<dt><a href="#Mutex">Mutex</a></dt>
+<dd><p>Mutex class provides an asynchronous locking mechanism to control access to shared resources.</p>
+</dd>
+<dt><a href="#RequestLimiter">RequestLimiter</a></dt>
+<dd><p>RequestLimiter class controls the execution rate of asynchronous requests.</p>
+</dd>
 <dt><a href="#Converter">Converter</a></dt>
 <dd><p>Converter class provides utility methods for type conversion.</p>
 </dd>
@@ -1246,6 +1252,72 @@ Automatically reads the file and initializes storage with automatic persistence.
 | Param | Type | Description |
 | --- | --- | --- |
 | filename | <code>string</code> | The filename where the store data is stored. |
+
+<a name="Mutex"></a>
+
+## Mutex
+Mutex class provides an asynchronous locking mechanism to control access to shared resources.
+
+**Kind**: global class  
+
+* [Mutex](#Mutex)
+    * [new Mutex()](#new_Mutex_new)
+    * [.lock()](#Mutex+lock) ⇒ <code>Promise.&lt;function()&gt;</code>
+    * [.unlock()](#Mutex+unlock)
+
+<a name="new_Mutex_new"></a>
+
+### new Mutex()
+Creates an instance of the Mutex class.
+
+<a name="Mutex+lock"></a>
+
+### mutex.lock() ⇒ <code>Promise.&lt;function()&gt;</code>
+Acquires the lock and returns a promise that resolves when the lock is released.
+If the lock is already held, the promise waits until the lock is available.
+
+**Kind**: instance method of [<code>Mutex</code>](#Mutex)  
+**Returns**: <code>Promise.&lt;function()&gt;</code> - A promise resolving to an unlock function.  
+<a name="Mutex+unlock"></a>
+
+### mutex.unlock()
+Releases the lock and allows the next waiting process to acquire it.
+
+**Kind**: instance method of [<code>Mutex</code>](#Mutex)  
+<a name="RequestLimiter"></a>
+
+## RequestLimiter
+RequestLimiter class controls the execution rate of asynchronous requests.
+
+**Kind**: global class  
+
+* [RequestLimiter](#RequestLimiter)
+    * [new RequestLimiter(options)](#new_RequestLimiter_new)
+    * [.add(requestFn)](#RequestLimiter+add) ⇒ <code>Promise.&lt;\*&gt;</code>
+
+<a name="new_RequestLimiter_new"></a>
+
+### new RequestLimiter(options)
+Creates an instance of RequestLimiter.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>Object</code> | Configuration options for rate limiting. |
+| options.maxRequests | <code>number</code> | Maximum number of requests allowed per batch. |
+| options.timeWindow | <code>number</code> | Time window in milliseconds before processing the next batch. |
+
+<a name="RequestLimiter+add"></a>
+
+### requestLimiter.add(requestFn) ⇒ <code>Promise.&lt;\*&gt;</code>
+Adds a request function to the queue for execution.
+
+**Kind**: instance method of [<code>RequestLimiter</code>](#RequestLimiter)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - A promise that resolves with the request's result.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| requestFn | <code>function</code> | The asynchronous function representing the request. |
 
 <a name="Converter"></a>
 
