@@ -16,20 +16,20 @@ Micro Framework adalah framework ringan dan fleksibel yang dirancang untuk penge
 
 1. **Clone Repositori**
 
-   Anda dapat mengunduh kode sumber framework ini dengan cara meng-clone repositori:
+    Anda dapat mengunduh kode sumber framework ini dengan cara meng-clone repositori:
 
-   <pre>
-   git clone https://github.com/username/micro-framework.git
-   cd micro-framework
-   </pre>
+    <pre>
+    git clone https://github.com/username/micro-framework.git
+    cd micro-framework
+    </pre>
 
 2. **Instalasi Dependensi**
 
-   Setelah meng-clone repositori, instal dependensi menggunakan npm:
+    Setelah meng-clone repositori, instal dependensi menggunakan npm:
 
-   <pre>
-   npm install
-   </pre>
+    <pre>
+    npm install
+    </pre>
 
 ## Struktur Proyek
 

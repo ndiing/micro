@@ -25,27 +25,26 @@ const fetch = async (input = "", init = {}) => {
         },
     };
 
-    if(/^http\:/.test((init.base||input))){
-        init.dispatcher=undefined
-    }   
+    if (/^http\:/.test(init.base || input)) {
+        init.dispatcher = undefined;
+    }
 
-    if(typeof init.params==='object'&&Object.keys(init.params).length){
-        input=input.replace(/\:(\w+)/g,($,$1) => init.params[$1])
+    if (typeof init.params === "object" && Object.keys(init.params).length) {
+        input = input.replace(/\:(\w+)/g, ($, $1) => init.params[$1]);
     }
 
     const url = new URL(input, init.base);
 
-    if(typeof init.query==='object'&&Object.keys(init.query).length){
+    if (typeof init.query === "object" && Object.keys(init.query).length) {
         for (const name in init.query) {
             const value = init.query[name];
             if (value === undefined || value === null) {
                 continue;
             }
-    
+
             url.searchParams.set(name, value);
         }
     }
-
 
     if (init.store) {
         const cookie = init.store.cookieStore.cookie;

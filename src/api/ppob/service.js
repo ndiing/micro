@@ -1,2 +1,2 @@
-class Service{}
-module.exports=Service
+class Service {}
+module.exports = Service;
