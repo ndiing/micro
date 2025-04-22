@@ -190,3 +190,39 @@ Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
 GET http://localhost/api/test/transactions/8df5a343-c17f-4529-ad77-3c406be5aed6
 Authorization: Basic cnMwMDAwMDE6cGFzc3dvcmQ=
 
+
+
+
+
+
+
+###
+POST http://service.com/api/ppob/inquiry
+Content-Type: application/json
+
+{
+    "transaction_id":null,
+    "product_id":null,
+    "customer_number":null
+}
+
+###
+POST http://service.com/api/ppob/purchase
+Content-Type: application/json
+
+{
+    "inquiry_id":null,
+    "transaction_id":null,
+    "product_id":null,
+    "customer_number":null
+}
+
+###
+POST http://service.com/api/ppob/purchase
+Content-Type: application/json
+
+{
+    "transaction_id":null,
+    "product_id":null,
+    "customer_number":null
+}
