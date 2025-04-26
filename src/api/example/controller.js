@@ -1,4 +1,6 @@
 const Service = require("./service.js");
+const Model = require("./model.js");
+const Handler = require("./handler.js");
 const CacheMap = require("../../lib/cache-map.js");
 const Store = require("../../lib/store.js");
 

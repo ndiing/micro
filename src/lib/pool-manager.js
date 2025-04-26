@@ -1,4 +1,3 @@
-// pool-manager.js
 const mssql = require("mssql/msnodesqlv8");
 
 class PoolManager {
@@ -9,9 +8,15 @@ class PoolManager {
             if (!config) {
                 throw new Error("Pool does not exist");
             }
+
+            config.beforeConnect = (conn) => {
+                conn.conn_str = conn.conn_str.replace(/Driver=.*?;/, "Driver=ODBC Driver 17 for SQL Server;");
+
+                return conn;
+            };
+
             const pool = new mssql.ConnectionPool(config);
 
-            // Automatically remove the pool from the cache if `pool.close()` is called
             const close = pool.close.bind(pool);
             pool.close = (...args) => {
                 this.pools.delete(name);
