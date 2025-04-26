@@ -188,14 +188,21 @@ Contoh isi:
 
 <pre>
 {
-    "NODE_ENV": "development",
-    "HTTP_PORT": 3000,
-    "HTTPS_PORT": 3001,
-    "JWT_SECRET": "rahasia-super-aman",
-    "DB_HOST": "localhost",
-    "DB_PORT": 3306
+    "HTTP_PORT": 80,
+    "HTTPS_PORT": 443,
+    "SECRET_TOKEN": "a-string-secret-at-least-256-bits-long",
+    "_HTTP_PROXY": "http://127.0.0.1:8888"
 }
 </pre>
+
+Jika ingin menggunakan pengaturan seperti `HTTP_PROXY`, hapus underscore (`_`) di depan nama key untuk digunakan.
+
+<pre>
+{
+    "HTTP_PROXY": "http://127.0.0.1:8888"
+}
+</pre>
+
 
 ---
 
