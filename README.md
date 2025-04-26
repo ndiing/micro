@@ -1,37 +1,41 @@
 # Micro Framework
 
-Micro Framework adalah framework ringan dan fleksibel yang dirancang untuk pengembangan aplikasi backend menggunakan Node.js. Framework ini memiliki berbagai fitur untuk membantu Anda dalam menangani routing, middleware, pengelolaan file, validasi, autentikasi, dan banyak lagi.
+Micro Framework adalah framework ringan dan fleksibel untuk pengembangan aplikasi backend menggunakan Node.js.  
+Dirancang modular dan minimalis, memanfaatkan `Router` dan `WebSocket` custom dari library internal.
 
-## Fitur Utama
+---
 
-- **Routing**: Memudahkan pengelolaan rute HTTP seperti GET, POST, PUT, dan DELETE.
-- **Middleware**: Dukungan penuh untuk middleware seperti CORS, pengolahan JSON, dan rate limiting.
-- **Validasi**: Memudahkan validasi dan konversi data input menggunakan skema berbasis tipe data.
-- **Pengelolaan File**: Membaca dan menulis file, termasuk kompresi dan deserialisasi JSON.
-- **JWT & OTP**: Mendukung pembuatan dan verifikasi JSON Web Tokens (JWT) serta One-Time Password (OTP).
-- **WebSocket**: Menyediakan dukungan penuh untuk komunikasi WebSocket.
-- **Cookie Store**: Pengelolaan cookie secara otomatis di dalam aplikasi.
+## 🚀 Fitur Utama
 
-## Instalasi
+- **Router & Middleware**: Routing HTTP modern dan dukungan middleware powerful.
+- **WebSocket**: Support WebSocket upgrade secara langsung.
+- **Validasi**: Validasi dan konversi data input berbasis skema.
+- **JWT & OTP**: Pembuatan dan verifikasi JSON Web Token (JWT) dan One-Time Password (OTP).
+- **Pengelolaan File**: Membaca dan menulis file JSON, serta kompresi otomatis.
+- **Cookie Store**: Otomatisasi penyimpanan dan parsing cookie.
+- **Crash Handling**: Penanganan error global untuk aplikasi.
+- **Environment Management**: Semua konfigurasi aplikasi dikelola melalui `env.json`.
 
-1. **Clone Repositori**
+---
 
-    Anda dapat mengunduh kode sumber framework ini dengan cara meng-clone repositori:
+## 📦 Instalasi
 
-    <pre>
-    git clone https://github.com/username/micro-framework.git
-    cd micro-framework
-    </pre>
+### 1. Clone Repository
 
-2. **Instalasi Dependensi**
+<pre>
+git clone https://github.com/ndiing/micro.git
+cd micro
+</pre>
 
-    Setelah meng-clone repositori, instal dependensi menggunakan npm:
+### 2. Install Dependensi
 
-    <pre>
-    npm install
-    </pre>
+<pre>
+npm install
+</pre>
 
-## Struktur Proyek
+---
+
+## 📁 Struktur Proyek
 
 <pre>
 C:.
@@ -39,7 +43,8 @@ C:.
 │   .gitignore
 │   README.md
 │   package.json
-│   ...
+│   env.json
+│
 ├───data
 │       session.json
 │       tokopedia.json.gz
@@ -48,159 +53,191 @@ C:.
 │       index.html
 │       index.js
 │
+├───rest
+│       auth.rest
+│       user.rest
+│
 ├───src
 │   ├───api
 │   │   ├───auth
 │   │   │       controller.js
+│   │   │       handler.js
 │   │   │       model.js
-│   │   └───main
-│   │           index.js
-│   └───lib
-│       ├───base32.js
-│       ├───jwt.js
-│       └───router.js
+│   │   │       service.js
+│   │   │       middleware.js
+│   │   │       index.js
+│   │   ├───user
+│   │   │       controller.js
+│   │   │       handler.js
+│   │   │       model.js
+│   │   │       service.js
+│   │   │       index.js
+│   │   │
+│   │   └───index.js (mengumpulkan semua router API)
+│   │
+│   ├───lib
+│   │       base32.js
+│   │       cache-map.js
+│   │       cookie-store.js
+│   │       crash.js
+│   │       env.js
+│   │       fetch.js
+│   │       file.js
+│   │       index.js
+│   │       jwt.js
+│   │       otp.js
+│   │       router.js
+│   │       store.js
+│   │       util.js
+│   │       validation.js
+│   │       web-socket.js
+│
+│   └───index.js (server setup utama)
+│
 └───test
         cache-map.js
         jwt.js
         router.js
 </pre>
 
-### Penjelasan Struktur
+---
 
-- **src/api**: Menyimpan kode untuk API, termasuk controller, model, dan schema.
-- **src/lib**: Menyimpan utilitas dan modul tambahan seperti pengelolaan JWT, file, dan routing.
-- **test**: Berisi pengujian unit untuk berbagai modul framework.
+## ⚙️ Penggunaan Dasar
 
-## Penggunaan Dasar
-
-### Membuat Server HTTP
-
-Untuk memulai, Anda hanya perlu mengimpor framework dan membuat server HTTP:
+### Membuat Server HTTP & WebSocket
 
 <pre>
-const MicroFramework = require("micro-framework");
+require("./lib/crash.js");
+require("./lib/env.js");
 
-const app = new MicroFramework();
+const http = require("http");
+const https = require("https");
+const path = require("path");
+const Router = require("./lib/router.js");
+const WebSocket = require("./lib/web-socket.js");
+const { authorization } = require("./api/auth/middleware.js");
 
-app.get("/", (req, res) => {
-    res.send("Hello, World!");
-});
-
-app.listen(3000, () => {
-    console.log("Server berjalan di http://localhost:3000");
-});
-</pre>
-
-### Menambahkan Middleware
-
-Middleware dapat digunakan untuk berbagai kebutuhan seperti autentikasi, logging, atau validasi. Berikut adalah contoh middleware untuk menangani JSON:
-
-<pre>
-app.use((req, res, next) => {
-    if (req.headers["content-type"] === "application/json") {
-        req.body = JSON.parse(req.body);
-    }
-    next();
-});
-</pre>
-
-### Routing
-
-Menambahkan rute baru untuk menangani permintaan HTTP:
-
-<pre>
-app.get("/user/:id", (req, res) => {
-    const userId = req.params.id;
-    res.send(`User ID: ${userId}`);
-});
-</pre>
-
-## Fitur Lainnya
-
-### Pengelolaan File
-
-Framework ini menyediakan cara mudah untuk membaca dan menulis file, termasuk dukungan untuk file JSON dan kompresi.
-
-#### Membaca File JSON
-
-<pre>
-const File = require("micro-framework/lib/file");
-
-File.read("./data/session.json").then(data => {
-    console.log(data);
-});
-</pre>
-
-#### Menulis File JSON
-
-<pre>
-const data = { session: "active" };
-
-File.write("./data/session.json", data);
-</pre>
-
-### Validasi Data
-
-Framework ini menyediakan kelas `Validation` untuk memvalidasi data berdasarkan skema yang Anda tentukan.
-
-<pre>
-const Validation = require("micro-framework/lib/validation");
-
-const schema = {
-    username: "string",
-    age: "number",
-};
-
-const result = Validation.validate({ username: "John", age: 25 }, schema);
-
-if (result.errors.length > 0) {
-    console.log("Terjadi kesalahan dalam data:", result.errors);
-} else {
-    console.log("Data valid!");
+if (process.env.NODE_ENV === "development") {
+    require("./lib/index.js");
 }
+
+const app = new Router();
+
+app.use(Router.compression());
+app.use(Router.cookie());
+app.use(Router.json());
+app.use(Router.cors());
+app.use(Router.security());
+
+app.use(
+    Router.rateLimit([
+        { method: "POST", path: "/api/auth/request", timeWindow: 60, requestQuota: 3 },
+        { method: "POST", path: "/api/auth/verify", timeWindow: 60, requestQuota: 3 },
+    ])
+);
+
+app.use(
+    authorization([
+        { role: "admin", type: "refresh_token", method: "POST", path: "/api/auth/refresh", scope: "own" },
+        { role: "admin", type: "access_token", method: "POST", path: "/api/auth/revoke", scope: "own" },
+        { role: "user", type: "refresh_token", method: "POST", path: "/api/auth/refresh", scope: "own" },
+        { role: "user", type: "access_token", method: "POST", path: "/api/auth/revoke", scope: "own" },
+    ])
+);
+
+app.use(Router.static(path.join(process.cwd(), "dist")));
+app.use("/api", require("./src/api/index.js"));
+app.use(Router.missing());
+app.use(Router.catchAll());
+
+const httpServer = http.createServer();
+const httpsServer = https.createServer({});
+
+const socket = new WebSocket();
+
+socket.on("connection", (client) => {
+    client.on("open", () => {
+        client.send(JSON.stringify({ message: "from server" }));
+    });
+    client.on("message", console.log);
+    client.on("close", console.log);
+    client.on("error", console.log);
+});
+
+httpServer.on("request", app.request);
+httpsServer.on("request", app.request);
+
+httpServer.on("upgrade", socket.upgrade);
+httpsServer.on("upgrade", socket.upgrade);
+
+httpServer.listen(process.env.HTTP_PORT, "0.0.0.0", () => {
+    console.log(httpServer.address());
+});
+httpsServer.listen(process.env.HTTPS_PORT, "0.0.0.0", () => {
+    console.log(httpsServer.address());
+});
 </pre>
-
-### Autentikasi JWT
-
-Framework ini mendukung pembuatan dan verifikasi JSON Web Tokens (JWT):
-
-#### Membuat JWT
-
-<pre>
-const JWT = require("micro-framework/lib/jwt");
-
-const payload = { userId: 123 };
-const secret = "mysecretkey";
-
-const token = JWT.sign(payload, secret);
-console.log("JWT Token:", token);
-</pre>
-
-#### Verifikasi JWT
-
-<pre>
-const decoded = JWT.verify(token, secret);
-console.log("Decoded Payload:", decoded);
-</pre>
-
-## Pengujian
-
-Framework ini dilengkapi dengan pengujian unit menggunakan modul yang terdapat di dalam folder `test`. Anda dapat menjalankan pengujian menggunakan Jest atau framework pengujian lainnya.
-
-Untuk menjalankan pengujian, gunakan perintah berikut:
-
-<pre>
-npm test
-</pre>
-
-## Kontribusi
-
-Kami sangat menghargai kontribusi dari komunitas. Jika Anda memiliki ide atau perbaikan, harap buka issue atau kirimkan pull request ke repositori ini.
-
-## Lisensi
-
-Micro Framework dirilis di bawah lisensi MIT. Lihat file [LICENSE](LICENSE) untuk informasi lebih lanjut.
 
 ---
 
-Jika Anda memiliki pertanyaan atau ingin mempelajari lebih lanjut, silakan buka dokumentasi atau ajukan pertanyaan melalui issue di repositori ini.
+## 📜 Konfigurasi Environment
+
+Semua pengaturan ada di file `env.json` di root project:
+
+Contoh isi:
+
+<pre>
+{
+    "NODE_ENV": "development",
+    "HTTP_PORT": 3000,
+    "HTTPS_PORT": 3001,
+    "JWT_SECRET": "rahasia-super-aman",
+    "DB_HOST": "localhost",
+    "DB_PORT": 3306
+}
+</pre>
+
+---
+
+## 🧪 Testing API
+
+Gunakan file `.rest` untuk development API:  
+Tulis file di path:
+
+<pre>
+./rest/{module}.rest
+</pre>
+
+Contoh isi `auth.rest`:
+
+<pre>
+### Login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "example@example.com",
+    "password": "password123"
+}
+</pre>
+
+---
+
+## 🧑‍💻 Dokumentasi Lainnya
+
+- **Coding Style**: Lihat panduan penulisan kode di [CODING.md](./CODING.md)
+- **API Library**: Lihat dokumentasi API library di [API.md](./API.md)
+
+---
+
+## 🤝 Kontribusi
+
+Kami sangat menghargai kontribusi Anda!  
+Silahkan buat issue atau pull request di repository ini jika ingin berkontribusi.
+
+---
+
+## 📝 Lisensi
+
+Micro Framework dirilis di bawah lisensi MIT.  
+Silahkan lihat file [LICENSE](LICENSE) untuk informasi lebih lanjut.
