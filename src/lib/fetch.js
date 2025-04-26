@@ -13,13 +13,13 @@ const globalFetch = global.fetch;
  * @returns {Promise<Response>} A promise that resolves with the fetch response.
  */
 const fetch = async (input = "", init = {}) => {
-    if (process.env.HTTP_PROXY) {
+    if (global.env.httpProxy) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     }
 
     init = {
         ...init,
-        ...(process.env.HTTP_PROXY && { dispatcher: new ProxyAgent(process.env.HTTP_PROXY) }),
+        ...(global.env.httpProxy && { dispatcher: new ProxyAgent(global.env.httpProxy) }),
         headers: {
             ...init.headers,
         },

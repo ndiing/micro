@@ -8,9 +8,7 @@ const Router = require("./lib/router.js");
 const WebSocket = require("./lib/web-socket.js");
 const { authorization } = require("./api/auth/middleware.js");
 
-if (process.env.NODE_ENV === "development") {
-    require("./lib/index.js");
-}
+require("./lib/index.js");
 
 const app = new Router();
 
@@ -58,9 +56,9 @@ httpsServer.on("request", app.request);
 httpServer.on("upgrade", socket.upgrade);
 httpsServer.on("upgrade", socket.upgrade);
 
-httpServer.listen(process.env.HTTP_PORT, "0.0.0.0", () => {
+httpServer.listen(global.env.httpPort, "0.0.0.0", () => {
     console.log(httpServer.address());
 });
-httpsServer.listen(process.env.HTTPS_PORT, "0.0.0.0", () => {
+httpsServer.listen(global.env.httpsPort, "0.0.0.0", () => {
     console.log(httpsServer.address());
 });

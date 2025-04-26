@@ -20,3 +20,5 @@
 
 // require('./router.js');
 // require('./web-socket.js');
+
+require('./pool-manager.js');

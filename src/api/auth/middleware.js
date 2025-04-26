@@ -28,7 +28,7 @@ class Middleware {
                 res.locals.credentials = credentials;
 
                 try {
-                    const payload = JWT.verify(res.locals.credentials, process.env.SECRET_TOKEN);
+                    const payload = JWT.verify(res.locals.credentials, global.env.secretToken);
                     res.locals.payload = payload;
                 } catch (error) {
                     res.status(401);

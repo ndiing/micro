@@ -28,8 +28,8 @@ class Controller {
     static token() {
         const expires_in = 1 * 60 * 60;
 
-        const access_token = JWT.sign({ alg: "HS256", typ: "JWT" }, { role: "admin", type: "access_token", exp: Math.floor((Date.now() + expires_in * 1000) / 1000) }, process.env.SECRET_TOKEN);
-        const refresh_token = JWT.sign({ alg: "HS256", typ: "JWT" }, { role: "admin", type: "refresh_token", exp: Math.floor((Date.now() + 12 * 60 * 60 * 1000) / 1000) }, process.env.SECRET_TOKEN);
+        const access_token = JWT.sign({ alg: "HS256", typ: "JWT" }, { role: "admin", type: "access_token", exp: Math.floor((Date.now() + expires_in * 1000) / 1000) }, global.env.secretToken);
+        const refresh_token = JWT.sign({ alg: "HS256", typ: "JWT" }, { role: "admin", type: "refresh_token", exp: Math.floor((Date.now() + 12 * 60 * 60 * 1000) / 1000) }, global.env.secretToken);
         return { access_token, expires_in, refresh_token };
     }
 

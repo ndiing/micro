@@ -117,7 +117,7 @@ const Router = require("./lib/router.js");
 const WebSocket = require("./lib/web-socket.js");
 const { authorization } = require("./api/auth/middleware.js");
 
-if (process.env.NODE_ENV === "development") {
+if (global.env.NODE_ENV === "development") {
     require("./lib/index.js");
 }
 
@@ -170,10 +170,10 @@ httpsServer.on("request", app.request);
 httpServer.on("upgrade", socket.upgrade);
 httpsServer.on("upgrade", socket.upgrade);
 
-httpServer.listen(process.env.HTTP_PORT, "0.0.0.0", () => {
+httpServer.listen(global.env.httpPort, "0.0.0.0", () => {
     console.log(httpServer.address());
 });
-httpsServer.listen(process.env.HTTPS_PORT, "0.0.0.0", () => {
+httpsServer.listen(global.env.httpsPort, "0.0.0.0", () => {
     console.log(httpsServer.address());
 });
 </pre>
@@ -188,18 +188,18 @@ Contoh isi:
 
 <pre>
 {
-    "HTTP_PORT": 80,
-    "HTTPS_PORT": 443,
-    "SECRET_TOKEN": "a-string-secret-at-least-256-bits-long",
-    "_HTTP_PROXY": "http://127.0.0.1:8888"
+    "httpPort": 80,
+    "httpsPort": 443,
+    "secretToken": "a-string-secret-at-least-256-bits-long",
+    "_httpProxy": "http://127.0.0.1:8888"
 }
 </pre>
 
-Jika ingin menggunakan pengaturan seperti `HTTP_PROXY`, hapus underscore (`_`) di depan nama key untuk digunakan.
+Jika ingin menggunakan pengaturan seperti `httpProxy`, hapus underscore (`_`) di depan nama key untuk digunakan.
 
 <pre>
 {
-    "HTTP_PROXY": "http://127.0.0.1:8888"
+    "httpProxy": "http://127.0.0.1:8888"
 }
 </pre>
 
