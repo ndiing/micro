@@ -4,7 +4,6 @@ const api = new Router();
 
 api.use("/main", require("./main/index.js"));
 api.use("/auth", require("./auth/index.js"));
-// api.use("/test", require("./test/index.js"));
-api.use("/ppob", require("./ppob/index.js"));
+api.use("/example", require("./example/index.js"));
 
 module.exports = api;

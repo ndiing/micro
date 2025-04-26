@@ -1,0 +1,40 @@
+###
+POST http://localhost/api/example
+Content-Type: application/json
+
+{
+  "title": "foo",
+  "body": "bar",
+  "userId": 1,
+  "id": 101
+}
+
+
+
+###
+GET http://localhost/api/example
+
+
+
+###
+GET http://localhost/api/example/1
+
+
+
+###
+PATCH http://localhost/api/example/1
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "id": 1,
+  "title": "foo",
+  "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+}
+
+
+
+###
+DELETE http://localhost/api/example/1
+
+

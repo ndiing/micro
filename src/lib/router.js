@@ -699,6 +699,8 @@ class Router {
         return (err, req, res, next) => {
             err = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)));
 
+            console.debug(err)
+
             if (res.statusCode >= 200 && res.statusCode < 300) {
                 res.status(500);
             }
