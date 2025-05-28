@@ -572,7 +572,7 @@ class Router {
 
             if (req.method === "OPTIONS") {
                 res.statusCode = 200;
-                res.end(); // langsung akhiri respons tanpa lanjut ke route berikutnya
+                res.end();
                 return;
             }
 
