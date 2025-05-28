@@ -560,12 +560,20 @@ class Router {
     static cors(headers = {}) {
         headers = {
             "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
             ...headers,
         };
 
         return (req, res, next) => {
             for (const name in headers) {
                 res.setHeader(name, headers[name]);
+            }
+
+            if (req.method === "OPTIONS") {
+                res.statusCode = 200;
+                res.end(); // langsung akhiri respons tanpa lanjut ke route berikutnya
+                return;
             }
 
             next();
@@ -699,7 +707,7 @@ class Router {
         return (err, req, res, next) => {
             err = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)));
 
-            console.debug(err)
+            console.debug(err);
 
             if (res.statusCode >= 200 && res.statusCode < 300) {
                 res.status(500);
